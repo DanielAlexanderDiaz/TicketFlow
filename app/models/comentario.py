@@ -1,7 +1,6 @@
 import datetime
 from sqlmodel import Field, SQLModel
 
-
 class ComentarioTicket(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     id_ticket: int = Field(foreign_key="ticket.id", index=True)
