@@ -1,4 +1,5 @@
-from sqlmodel import Session
+from pydantic import EmailStr
+from sqlmodel import Session, select
 from app.models.usuario import Usuario
 
 class UsuarioRepositorio:
@@ -8,8 +9,8 @@ class UsuarioRepositorio:
     def get_usuario_by_id(self, id_usuario: int) -> Usuario | None:
         return self.db.get(Usuario, id_usuario)
 
-    def get_usuario_by_email(self, email: str) -> Usuario | None:
-        return self.db.get(Usuario, email)        
+    def get_usuario_by_email(self, email: EmailStr) -> Usuario | None:
+        return self.db.exec(select(Usuario).where(Usuario.email == email)).first()       
     
     def crear_usuario(self, usuario: Usuario) -> Usuario:
         self.db.add(usuario)

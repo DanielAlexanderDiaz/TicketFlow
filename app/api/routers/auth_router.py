@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import EmailStr
 from app.api.dependencias import DBSession
 from app.models.usuario import CrearUsuario, InfoUsuario
 from app.repositories.usuario_repository import UsuarioRepositorio
@@ -13,7 +14,7 @@ def registrar(payload: CrearUsuario, db: DBSession):
     return servicio.registrar(payload)
 
 @router.post("/login")
-def login(email: str, password: str, db: DBSession):
+def login(email: EmailStr, password: str, db: DBSession):
     servicio = AuthServices(UsuarioRepositorio(db))
     token = servicio.login(email, password)
     return {"access_token": token, "token_type": "bearer"}
