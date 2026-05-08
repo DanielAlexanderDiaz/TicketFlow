@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.db import init_db
-from api.routers.auth_router import router as auth_router
+from app.api.routers.auth_router import router as auth_router
 
 load_dotenv()
 

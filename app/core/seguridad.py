@@ -1,7 +1,7 @@
 import datetime
 import jwt
 from pwdlib import PasswordHash
-from core.config import configuracion
+from app.core.config import configuracion
 
 pwd_context = PasswordHash.recommended()
 

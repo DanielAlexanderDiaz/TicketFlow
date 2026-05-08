@@ -21,7 +21,6 @@ class AuthServices():
         
         usuario = Usuario(
             email=payload.email,
-            nombre_usuario=payload.nombre_usuario,
             hashed_password=hash_password(payload.hashed_password[:72])
         )
         return self.repo.crear_usuario(usuario)
