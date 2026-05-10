@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.db import init_db
 from app.api.routers.auth_router import router as auth_router
+from app.api.routers.usuario_router import router as usuario_router
 
 load_dotenv()
 
@@ -29,3 +30,4 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/api/v1")
+app.include_router(usuario_router, prefix="/api/v1")

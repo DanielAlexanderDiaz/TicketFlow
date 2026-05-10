@@ -12,6 +12,9 @@ class CrearUsuario(SQLModel):
     email: EmailStr 
     hashed_password: str = Field(min_length=4, max_length=15)
     
+class ActualizarUsuario(SQLModel):
+    nombre_usuario: str 
+    
 class InfoUsuario(SQLModel):
     id: int
     nombre_usuario: str 
