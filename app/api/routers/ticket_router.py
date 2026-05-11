@@ -7,7 +7,7 @@ from app.services.ticket_services import TicketService
 
 router = APIRouter(prefix="/ticket", tags=["ticket"])
 
-@router.get("/", response_model=list[InfoTicket])
+@router.get("/", response_model=InfoTicket)
 def info_ticket(id_ticket: int, db: DBSession, usuario: UsuarioActual):
     return TicketService(db).ticket_by_id(id_ticket)
 
