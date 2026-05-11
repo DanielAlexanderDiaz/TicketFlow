@@ -8,8 +8,6 @@ class Comentario(SQLModel, table=True):
     comentario: str
     
 class CrearComentario(SQLModel):
-    id_ticket: int
-    id_usuario: int
     comentario: str
     
 class ActualizarComentario(SQLModel):

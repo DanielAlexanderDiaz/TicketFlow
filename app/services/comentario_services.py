@@ -2,11 +2,13 @@ from fastapi import HTTPException
 from sqlmodel import Session
 from app.models.comentario import Comentario, ActualizarComentario, CrearComentario, InfoComentario
 from app.repositories.comentario_repository import ComentarioRepositorio
+from app.services.ticket_services import TicketService
 
 
 class ComentarioService():
     def __init__(self, db: Session):
         self.repo = ComentarioRepositorio(db)
+        self.ticket = TicketService(db)
         
     def comentario_by_id(self, id_comentario: int) -> list[Comentario]:
         return self.repo.get_comentario_by_id(id_comentario)
@@ -14,7 +16,15 @@ class ComentarioService():
     def comentario_by_ticket(self, id_ticket: int) -> list[Comentario]:
         return self.repo.get_comentario_by_ticket(id_ticket)
     
-    def crear_comentario(self, comentario: CrearComentario) -> Comentario:
+    def crear_comentario(self, id_ticket: int, id_usuario: int, payload: CrearComentario) -> Comentario:
+        ticket = self.ticket.ticket_by_id(id_ticket)
+        if not ticket:
+            raise HTTPException(status_code=404, detail=f"Ticket {id_ticket} no encontrado")
+        
+        comentario = Comentario(**payload.model_dump())
+        comentario.id_ticket = id_ticket
+        comentario.id_usuario = id_usuario
+        
         return self.repo.crear_comentario(comentario)
     
     def actualizar_comentario(self, id_comentario: int, id_ticket: int, payload: ActualizarComentario) -> Comentario:
