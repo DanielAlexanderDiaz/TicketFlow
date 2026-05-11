@@ -1,6 +1,6 @@
 from .usuario import Usuario, CrearUsuario, InfoUsuario
 from .ticket import Ticket, CrearTicket, InfoTicket
-from .comentario import ComentarioTicket, CrearComentarioTicket, InfoComentarioTicket
+from .comentario import Comentario, CrearComentario, ActualizarComentario, InfoComentario
 
 __all__ = [
     "Usuario",
@@ -9,7 +9,8 @@ __all__ = [
     "Ticket",
     "CrearTicket",
     "InfoTicket",
-    "ComentarioTicket",
-    "CrearComentarioTicket",
-    "InfoComentarioTicket",
+    "Comentario",
+    "CrearComentario",
+    "ActualizarComentario",
+    "InfoComentario"
 ]
