@@ -6,6 +6,7 @@ from app.core.db import init_db
 from app.api.routers.auth_router import router as auth_router
 from app.api.routers.usuario_router import router as usuario_router
 from app.api.routers.ticket_router import router as ticket_router
+from app.api.routers.comentario_router import router as comentario_router
 
 load_dotenv()
 
@@ -33,3 +34,4 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(usuario_router, prefix="/api/v1")
 app.include_router(ticket_router, prefix="/api/v1")
+app.include_router(comentario_router, prefix="/api/v1")
