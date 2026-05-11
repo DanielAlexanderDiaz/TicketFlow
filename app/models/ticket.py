@@ -9,7 +9,6 @@ class Ticket(SQLModel, table=True):
     id_usuario: int = Field(foreign_key="usuario.id", index=True)
     
 class CrearTicket(SQLModel):
-    id_usuario: int
     titulo: str
     descripcion: str
     estado: str = Field(default="Abierto")
