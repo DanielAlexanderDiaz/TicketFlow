@@ -17,10 +17,11 @@ class ComentarioService():
     def crear_comentario(self, comentario: CrearComentario) -> Comentario:
         return self.repo.crear_comentario(comentario)
     
-    def actualizar_comentario(self, id_comentario: int, payload: ActualizarComentario) -> Comentario:
+    def actualizar_comentario(self, id_comentario: int, id_ticket: int, payload: ActualizarComentario) -> Comentario:
         comentario = self.repo.get_comentario_by_id(id_comentario)
-        if comentario is None:
-            raise HTTPException(status_code=404, detail=f"Comentario {id_comentario} no encontrado")
+        ticket = self.repo.get_comentario_by_ticket(id_ticket)
+        if comentario is None or ticket is None:
+            raise HTTPException(status_code=404, detail=f"Comentario {id_comentario} no encontrado o ticket {id_ticket} no encontrado")
         
         actualizar = payload.model_dump(exclude_unset=True)
         

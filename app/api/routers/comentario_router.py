@@ -10,3 +10,7 @@ router = APIRouter(prefix="/comentario", tags=["comentario"])
 @router.get("/", response_model=InfoComentario)
 def info_comentario(id_comentario: int, db: DBSession, usuario: UsuarioActual):
     return ComentarioService(db).comentario_by_ticket(id_comentario)
+
+@router.patch("/{id_comentario}", response_model=InfoComentario)
+def actualizar_comentario(id_comentario: int, id_ticket: int, payload: ActualizarComentario, db: DBSession, usuario: UsuarioActual):
+    return ComentarioService(db).actualizar_comentario(id_comentario, id_ticket, payload)
