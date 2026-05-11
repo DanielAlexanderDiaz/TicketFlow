@@ -11,8 +11,8 @@ def info_ticket(id_ticket: int, db: DBSession, usuario: UsuarioActual):
     return TicketService(db).ticket_by_id(id_ticket)
 
 @router.post("/", response_model=CrearTicket, status_code=status.HTTP_201_CREATED)
-def crear_ticket(id_usuario: int, payload: CrearTicket, db: DBSession, usuario: UsuarioActual):
-    return TicketService(db).crear_ticket(id_usuario, payload)
+def crear_ticket(payload: CrearTicket, db: DBSession, usuario: UsuarioActual):
+    return TicketService(db).crear_ticket(usuario.id, payload)
 
 @router.patch("/{id_ticket}", response_model=InfoTicket)
 def actualizar_ticket(id_ticket: int, payload: ActualizarTicket, db: DBSession, usuario: UsuarioActual):
