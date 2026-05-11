@@ -18,7 +18,7 @@ class ComentarioRepositorio:
         return comentario
     
     def actualizar_comentario(self, comentario: Comentario) -> Comentario:
-        self.db.add(comentario)
+        # self.db.add(comentario)
         self.db.commit()
         self.db.refresh(comentario)
         return comentario
