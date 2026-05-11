@@ -1,4 +1,3 @@
-import datetime
 from sqlmodel import Field, SQLModel
 
 class Ticket(SQLModel, table=True):
@@ -13,8 +12,8 @@ class CrearTicket(SQLModel):
     id_usuario: int
     titulo: str
     descripcion: str
-    estado: str
-    prioridad: str
+    estado: str = Field(default="Abierto")
+    prioridad: str = Field(default="Baja")
     
 class ActualizarTicket(SQLModel):
     titulo: str
