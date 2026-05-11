@@ -32,5 +32,16 @@ class TicketService:
         
         return self.repo.crear_ticket(ticket)
     
-    def actualizar_ticket(self, payload: ActualizarTicket) -> Ticket:
-        return self.repo.crear_ticket(payload)
+    def actualizar_ticket(self, id_ticket: int, payload: ActualizarTicket) -> Ticket:
+        ticket = self.repo.get_ticket_by_id(id_ticket)
+        if not ticket:
+            raise HTTPException(status_code=404, detail=f"No se encontro el ticket {id_ticket}")
+        
+        actualizar = payload.model_dump(exclude_unset=True)
+        
+        for key, value in actualizar.items():
+            setattr(ticket, key, value)
+        
+        self.repo.actualizar_ticket(ticket)
+        
+        return ticket

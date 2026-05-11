@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlmodel import Field, SQLModel
 
 class Ticket(SQLModel, table=True):
@@ -15,13 +16,14 @@ class CrearTicket(SQLModel):
     prioridad: str = Field(default="Baja")
     
 class ActualizarTicket(SQLModel):
-    titulo: str
-    descripcion: str
-    estado: str
-    prioridad: str
+    titulo: Optional[str] = None
+    descripcion: Optional[str] = None
+    estado: Optional[str] = None
+    prioridad: Optional[str] = None
     
 class InfoTicket(SQLModel):
     id: int
+    id_usuario: int
     titulo: str
     descripcion: str
     estado: str

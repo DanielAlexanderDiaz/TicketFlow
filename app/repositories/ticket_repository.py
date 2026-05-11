@@ -18,7 +18,7 @@ class TicketRepositorio:
         return ticket
     
     def actualizar_ticket(self, ticket: Ticket) -> Ticket:
-        self.db.add(ticket)
+        # self.db.add(ticket)
         self.db.commit()
         self.db.refresh(ticket)
         return ticket
