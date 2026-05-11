@@ -12,6 +12,9 @@ class UsuarioRepositorio:
     def get_usuario_by_email(self, email: EmailStr) -> Usuario | None:
         return self.db.exec(select(Usuario).where(Usuario.email == email)).first()       
     
+    def listar_usuarios(self) -> list[Usuario] | None:
+        return self.db.exec(select(Usuario)).all()
+    
     def crear_usuario(self, usuario: Usuario) -> Usuario:
         self.db.add(usuario)
         self.db.commit()

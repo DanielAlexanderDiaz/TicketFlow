@@ -8,7 +8,10 @@ class UsuarioService:
     def __init__(self, db: Session):
         self.repo = UsuarioRepositorio(db)
         
-    def listar_usuario(self, id_usuario: int):
+    def listar_usuarios(self) -> list[Usuario]:
+        return self.repo.listar_usuarios()
+        
+    def informacion_usuario(self, id_usuario: int):
         return self.repo.get_usuario_by_id(id_usuario)
     
     def actualizar_usuario(self, email: int, payload: ActualizarUsuario) -> Usuario:
