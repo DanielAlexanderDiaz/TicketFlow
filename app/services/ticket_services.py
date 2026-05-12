@@ -11,10 +11,12 @@ class TicketService:
         self.repo = TicketRepositorio(db)
         
     def ticket_by_usuario(self, id_usuario: int) -> list[Ticket]:
-        usuario = self.repo.get_ticket_by_usuario(id_usuario)
+        usuario = self.usuario.get_usuario_by_id(id_usuario)
         if not usuario:
-            raise HTTPException(status_code=404, detail=f"No se encontraron tickets de {id_usuario}")
-        return usuario
+            raise HTTPException(status_code=404, detail=f"No se encontro el usuario {id_usuario}")
+        
+        return self.repo.get_ticket_by_usuario(id_usuario)
+        
 
     def ticket_by_id(self, id_ticket: int) -> Ticket | None:
         ticket =  self.repo.get_ticket_by_id(id_ticket)
