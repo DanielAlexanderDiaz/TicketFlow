@@ -14,6 +14,10 @@ def info_ticket(id_ticket: int, db: DBSession, usuario: UsuarioActual):
 def listar_tickets(db: DBSession, usuario: UsuarioActual):
     return TicketService(db).ticket_by_usuario(usuario.id)
 
+@router.get("/listar_todos", response_model=list[InfoTicket])
+def listar_tickets(db: DBSession, usuario: UsuarioActual):
+    return TicketService(db).listar_tickets()
+
 @router.post("/", response_model=CrearTicket, status_code=status.HTTP_201_CREATED)
 def crear_ticket(payload: CrearTicket, db: DBSession, usuario: UsuarioActual):
     return TicketService(db).crear_ticket(usuario.id, payload)

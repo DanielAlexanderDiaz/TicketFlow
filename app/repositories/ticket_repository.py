@@ -11,8 +11,8 @@ class TicketRepositorio:
     def get_ticket_by_usuario(self, id_usuario: int) -> list[Ticket]:
         return self.db.exec(select(Ticket).where(Ticket.id_usuario == id_usuario)).all()
     
-    def listar_tickets(self) -> list[Ticket] | None:
-        return self.db.exec(Ticket).all()
+    def listar_tickets(self) -> list[Ticket]:
+        return self.db.exec(select(Ticket)).all()
     
     def crear_ticket(self, ticket: Ticket) -> Ticket:
         self.db.add(ticket)
