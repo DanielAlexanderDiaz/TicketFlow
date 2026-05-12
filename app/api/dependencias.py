@@ -32,7 +32,7 @@ def get_usuario_actual(token: Annotated[str, Depends(oauth2_scheme)], db: DBSess
 
 UsuarioActual = Annotated[Usuario, Depends(get_usuario_actual)]
 
-def require_admin(usuario: Usuario = Depends(UsuarioActual)):
+def require_admin(usuario: UsuarioActual):
     if usuario.rol not in [RoleEnum.admin, RoleEnum.superuser]:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No autorizado")
     return usuario

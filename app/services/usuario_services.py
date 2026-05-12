@@ -42,18 +42,10 @@ class UsuarioService:
         return usuario
     
     def actualizar_rol(self, id_usuario: int, payload: ActualizarRol) -> Usuario:
-        usuario = self.repo.get_usuario_by_id(id_usuario)
-        
+        usuario = self.repo.get_usuario_by_id(id_usuario)    
         if not usuario:
             raise HTTPException(status_code=404, detail='Usuario no encontrado')
-        
-        actualizar = payload.model_dump(exclude_unset=True)
-        
-        for key, value in actualizar.items():
-            setattr(usuario, key, value)
-        
+
         usuario.rol = payload.rol
-        
         self.repo.actualizar_usuario(usuario)
-        
         return usuario

@@ -27,5 +27,5 @@ def actualizar_usuarios(id_usuario: int, payload: ActualizarUsuario, db: DBSessi
     return UsuarioService(db).actualizar_usuario_id(id_usuario, payload)
 
 @router.patch("/{id_usuario}/rol", response_model=InfoUsuario)
-def actualizar_rol_usuario(id_usuario: int, payload: ActualizarRol, db: DBSession, usuario: UsuarioActual):
+def actualizar_rol_usuario(id_usuario: int, payload: ActualizarRol, db: DBSession, admin: PermisoAdmin):
     return UsuarioService(db).actualizar_rol(id_usuario, payload)
