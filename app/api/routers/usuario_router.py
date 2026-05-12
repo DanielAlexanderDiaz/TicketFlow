@@ -15,6 +15,14 @@ def listar_usuarios(db: DBSession):
 def info_usuario(db: DBSession, usuario: UsuarioActual):
     return UsuarioService(db).informacion_usuario(usuario.id)
 
-@router.patch("/{email}", response_model=InfoUsuario)
-def actualizar_usuario(email: EmailStr, payload: ActualizarUsuario, db: DBSession, usuario: UsuarioActual):
-    return UsuarioService(db).actualizar_usuario(email, payload)
+@router.get("/informacion_usuario_id", response_model=InfoUsuario)
+def info_usuario_id(id_usuario: int, db: DBSession, usuario: UsuarioActual):
+    return UsuarioService(db).informacio_usuario_id(id_usuario)
+
+@router.patch("/{id_usuario}", response_model=InfoUsuario)
+def actualizar_usuario(payload: ActualizarUsuario, db: DBSession, usuario: UsuarioActual):
+    return UsuarioService(db).actualizar_usuario_id(usuario.id, payload)
+
+@router.patch("/update/{id_usuario}", response_model=InfoUsuario)
+def actualizar_usuarios(id_usuario: int, payload: ActualizarUsuario, db: DBSession, usuario: UsuarioActual):
+    return UsuarioService(db).actualizar_usuario_id(id_usuario, payload)
