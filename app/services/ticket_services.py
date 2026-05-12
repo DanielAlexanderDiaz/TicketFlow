@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import HTTPException
 from sqlmodel import Session
 from app.models.ticket import ActualizarTicket, CrearTicket, Ticket
@@ -33,6 +34,7 @@ class TicketService:
         
         ticket = Ticket(**payload.model_dump())
         ticket.id_usuario = id_usuario
+        ticket.fecha_creacion = datetime.now()
         
         return self.repo.crear_ticket(ticket)
     

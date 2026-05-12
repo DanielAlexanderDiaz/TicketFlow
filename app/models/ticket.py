@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from sqlmodel import Field, SQLModel
 
@@ -7,6 +8,7 @@ class Ticket(SQLModel, table=True):
     descripcion: str = Field(default="")
     estado: str = Field(default="Abierto")
     prioridad: str = Field(default="Baja")
+    fecha_creacion: datetime = Field(default=datetime.now())
     id_usuario: int = Field(foreign_key="usuario.id", index=True)
     
 class CrearTicket(SQLModel):
@@ -28,4 +30,5 @@ class InfoTicket(SQLModel):
     descripcion: str
     estado: str
     prioridad: str
+    fecha_creacion: datetime
     model_config = {"from_attributes": True}

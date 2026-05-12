@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import HTTPException
 from sqlmodel import Session
 from app.models.comentario import Comentario, ActualizarComentario, CrearComentario, InfoComentario
@@ -36,6 +37,7 @@ class ComentarioService():
         comentario = Comentario(**payload.model_dump())
         comentario.id_ticket = id_ticket
         comentario.id_usuario = id_usuario
+        comentario.fecha_creacion = datetime.now()
         
         return self.repo.crear_comentario(comentario)
     

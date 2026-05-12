@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from pydantic import EmailStr
 from sqlmodel import Field, SQLModel
@@ -13,6 +14,7 @@ class Usuario(SQLModel, table=True):
     email: EmailStr = Field(index=True, unique=True)
     hashed_password: str = Field(min_length=4, max_length=15)
     rol: RoleEnum = Field(default=RoleEnum.user)
+    fecha_creacion: datetime = Field(default=datetime.now())
     
 class CrearUsuario(SQLModel):
     nombre_usuario: str = Field(default="")
@@ -27,6 +29,7 @@ class InfoUsuario(SQLModel):
     nombre_usuario: str 
     email: EmailStr 
     rol: RoleEnum
+    fecha_creacion: datetime
     model_config = {"from_attributes": True}
     
 class ActualizarRol(SQLModel):
