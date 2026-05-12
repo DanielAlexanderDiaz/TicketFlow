@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Query
 from sqlmodel import Session
-from app.models.usuario import ActualizarUsuario, Usuario
+from app.models.usuario import ActualizarRol, ActualizarUsuario, Usuario
 from app.repositories.usuario_repository import UsuarioRepositorio
 
 
@@ -41,7 +41,7 @@ class UsuarioService:
         
         return usuario
     
-    def actualizar_usuario_id(self,id_usuario: int, payload: ActualizarUsuario) -> Usuario:
+    def actualizar_rol(self, id_usuario: int, payload: ActualizarRol) -> Usuario:
         usuario = self.repo.get_usuario_by_id(id_usuario)
         
         if not usuario:
@@ -51,7 +51,9 @@ class UsuarioService:
         
         for key, value in actualizar.items():
             setattr(usuario, key, value)
-            
+        
+        usuario.rol = payload.rol
+        
         self.repo.actualizar_usuario(usuario)
         
         return usuario

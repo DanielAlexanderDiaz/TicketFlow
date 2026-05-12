@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from pydantic import EmailStr
 from app.core.seguridad import crear_token, hash_password, verify_password
-from app.models.usuario import CrearUsuario, Usuario
+from app.models.usuario import CrearUsuario, RoleEnum, Usuario
 from app.repositories.usuario_repository import UsuarioRepositorio
 
 
@@ -16,7 +16,8 @@ class AuthServices:
         usuario = Usuario(
             nombre_usuario = payload.nombre_usuario,
             email = payload.email,
-            hashed_password = hash_password(payload.hashed_password[:72])
+            hashed_password = hash_password(payload.hashed_password[:72]),
+            rol = RoleEnum.user
         )
         return self.repo.crear_usuario(usuario)
     

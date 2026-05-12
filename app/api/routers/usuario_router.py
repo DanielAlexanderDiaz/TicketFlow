@@ -1,14 +1,13 @@
-from fastapi import APIRouter
-from pydantic import EmailStr
-from app.api.dependencias import DBSession, UsuarioActual
-from app.models.usuario import ActualizarUsuario, InfoUsuario
+from fastapi import APIRouter, Depends
+from app.api.dependencias import DBSession, PermisoAdmin, UsuarioActual
+from app.models.usuario import ActualizarRol, ActualizarUsuario, InfoUsuario
 from app.services.usuario_services import UsuarioService
 
 
 router = APIRouter(prefix="/usuario", tags=["usuario"])
 
 @router.get("/listar", response_model=list[InfoUsuario])
-def listar_usuarios(db: DBSession):
+def listar_usuarios(db: DBSession, admin: PermisoAdmin):
     return UsuarioService(db).listar_usuarios()
 
 @router.get("/informacion_usuario", response_model=InfoUsuario)
@@ -26,3 +25,7 @@ def actualizar_usuario(payload: ActualizarUsuario, db: DBSession, usuario: Usuar
 @router.patch("/update/{id_usuario}", response_model=InfoUsuario)
 def actualizar_usuarios(id_usuario: int, payload: ActualizarUsuario, db: DBSession, usuario: UsuarioActual):
     return UsuarioService(db).actualizar_usuario_id(id_usuario, payload)
+
+@router.patch("/{id_usuario}/rol", response_model=InfoUsuario)
+def actualizar_rol_usuario(id_usuario: int, payload: ActualizarRol, db: DBSession, usuario: UsuarioActual):
+    return UsuarioService(db).actualizar_rol(id_usuario, payload)
