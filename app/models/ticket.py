@@ -24,6 +24,17 @@ class Ticket(SQLModel, table=True):
     prioridad: PrioridadTicket = Field(default=PrioridadTicket.baja)
     id_usuario: int = Field(foreign_key="usuario.id", index=True)
     
+class TicketAuditoria(SQLModel, table=True):
+    __tablename__ = "ticket_auditoria"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    id_ticket: int = Field(foreign_key="ticket.id", index=True)
+    id_usuario: int = Field(foreign_key="usuario.id", index=True)
+    campo_cambiado: str = Field(default="")
+    fecha_cambio: datetime = Field(default_factory=datetime.now)
+    valor_anterior: str | None = Field(default=None)
+    valor_nuevo: str | None = Field(default=None)
+    accion: str = Field(default="actualizado")
+    
 class CrearTicket(SQLModel):
     titulo: str
     descripcion: str
@@ -45,4 +56,14 @@ class InfoTicket(SQLModel):
     fecha_actualizacion: datetime
     model_config = {"from_attributes": True}
     
-    
+class HistorialTicket(SQLModel):
+    id: int
+    id_ticket: int
+    id_usuario: int
+    campo_cambiado: str
+    fecha_cambio: datetime
+    valor_anterior: str | None
+    valor_nuevo: str | None
+    accion: str
+    fecha_actualizacion: datetime
+    model_config = {"from_attributes": True}
