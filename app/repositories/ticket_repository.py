@@ -1,6 +1,7 @@
 from sqlmodel import Session, select
 from app.models.ticket import Ticket
 
+
 class TicketRepositorio:
     def __init__(self, db: Session):
         self.db = db

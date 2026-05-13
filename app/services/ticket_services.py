@@ -30,11 +30,10 @@ class TicketService:
     def crear_ticket(self, id_usuario: int, payload: CrearTicket) -> Ticket:
         usuario = self.usuario.get_usuario_by_id(id_usuario)
         if not usuario:
-            raise HTTPException(status_code=404, detail=f"No se encontro el usuario {payload.id_usuario}")
+            raise HTTPException(status_code=404, detail=f"No se encontro el usuario {id_usuario}")
         
         ticket = Ticket(**payload.model_dump())
         ticket.id_usuario = id_usuario
-        ticket.fecha_creacion = datetime.now()
         
         return self.repo.crear_ticket(ticket)
     
@@ -48,6 +47,7 @@ class TicketService:
         for key, value in actualizar.items():
             setattr(ticket, key, value)
         
+        ticket.fecha_actualizacion = datetime.now()
         self.repo.actualizar_ticket(ticket)
         
         return ticket
