@@ -32,7 +32,6 @@ class TicketService:
         return sorted(combinar.values(), key=lambda t: t.id, reverse=True)
         
         
-        
     def ticket_by_id(self, id_ticket: int) -> Ticket | None:
         ticket =  self.ticket.get_ticket_by_id(id_ticket)
         if not ticket:
@@ -58,6 +57,7 @@ class TicketService:
         self.ticket.crear_audtoria(TicketAuditoria(
             id_ticket=ticket.id, 
             id_usuario=id_usuario, 
+            id_usuario_compartido=None,
             campo_cambiado="*", 
             valor_anterior=None,
             valor_nuevo="Ticket creado",
@@ -82,6 +82,7 @@ class TicketService:
             self.ticket.crear_audtoria(TicketAuditoria(
                 id_ticket=ticket.id, 
                 id_usuario=id_usuario, 
+                id_usuario_compartido=None,
                 campo_cambiado=key, 
                 valor_anterior=str(old_value),
                 valor_nuevo=str(value),
@@ -94,4 +95,7 @@ class TicketService:
         return ticket
 
     def obtener_historial(self, id_ticket: int) -> list[HistorialTicket]:
+        ticket = self.ticket.get_ticket_by_id(id_ticket)
+        if not ticket:
+            raise HTTPException(status_code=404, detail=f"No se encontro el ticket {id_ticket}")
         return self.ticket.get_ticket_historial(id_ticket)

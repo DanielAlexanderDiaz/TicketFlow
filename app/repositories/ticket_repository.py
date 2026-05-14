@@ -1,5 +1,5 @@
 from sqlmodel import Session, select
-from app.models.ticket import Ticket, TicketAuditoria
+from app.models.ticket import HistorialTicket, Ticket, TicketAuditoria
 
 
 class TicketRepositorio:
@@ -39,7 +39,7 @@ class TicketRepositorio:
         self.db.refresh(auditoria)
         return auditoria
     
-    def get_ticket_historial(self, id_ticket: int) -> list[TicketAuditoria]:
+    def get_ticket_historial(self, id_ticket: int) -> list[HistorialTicket]:
         query = select(TicketAuditoria).where(TicketAuditoria.id_ticket == id_ticket).order_by(TicketAuditoria.fecha_cambio.desc())
         return self.db.exec(query).all()
     

@@ -29,6 +29,7 @@ class TicketAuditoria(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     id_ticket: int = Field(foreign_key="ticket.id", index=True)
     id_usuario: int = Field(foreign_key="usuario.id", index=True)
+    id_usuario_compartido: Optional[int] = Field(default=None)
     campo_cambiado: str = Field(default="")
     fecha_cambio: datetime = Field(default_factory=datetime.now)
     valor_anterior: str | None = Field(default=None)
@@ -60,10 +61,10 @@ class HistorialTicket(SQLModel):
     id: int
     id_ticket: int
     id_usuario: int
+    id_usuario_compartido: int | None = None 
     campo_cambiado: str
     fecha_cambio: datetime
-    valor_anterior: str | None
-    valor_nuevo: str | None
+    valor_anterior: str | None = None
+    valor_nuevo: str | None = None
     accion: str
-    fecha_actualizacion: datetime
     model_config = {"from_attributes": True}

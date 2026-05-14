@@ -22,7 +22,7 @@ class CompartirRepository:
         return compartir
     
     def remover_compartir_ticket(self, id_ticket: int, id_usuario: int) -> None:
-        query = delete(TicketCompartir).where(TicketCompartir.id_ticket == id_ticket, TicketCompartir.id_usuario == id_usuario)
+        query = select(TicketCompartir).where(TicketCompartir.id_ticket == id_ticket, TicketCompartir.id_usuario == id_usuario)
         compartir = self.db.exec(query).first()
         
         if compartir:
