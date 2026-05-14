@@ -2,6 +2,7 @@ from datetime import datetime
 from fastapi import HTTPException
 from sqlmodel import Session
 from app.models.ticket import ActualizarTicket, CrearTicket, HistorialTicket, Ticket, TicketAuditoria
+from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
 
@@ -10,13 +11,27 @@ class TicketService:
     def __init__(self, db: Session):
         self.usuario = UsuarioRepositorio(db)
         self.ticket = TicketRepositorio(db)
+        self.compartir = CompartirRepository(db)
         
     def ticket_by_usuario(self, id_usuario: int) -> list[Ticket]:
         usuario = self.usuario.get_usuario_by_id(id_usuario)
         if not usuario:
             raise HTTPException(status_code=404, detail=f"No se encontro el usuario {id_usuario}")
         
-        return self.ticket.get_ticket_by_usuario(id_usuario)
+        registros_compartidos = self.compartir.listar_tickets_compartidos(id_usuario)
+        ids_compartidos = [reg.id_ticket for reg in registros_compartidos]
+        
+        tickets_compartidos = self.ticket.lista_ids_ticket(ids_compartidos)
+        
+        tickets_propios = self.ticket.get_ticket_by_usuario(id_usuario)
+        
+        combinar = {ticket.id: ticket for ticket in tickets_propios}
+        for ticket in tickets_compartidos:
+            combinar.setdefault(ticket.id, ticket)
+            
+        return sorted(combinar.values(), key=lambda t: t.id, reverse=True)
+        
+        
         
     def ticket_by_id(self, id_ticket: int) -> Ticket | None:
         ticket =  self.ticket.get_ticket_by_id(id_ticket)

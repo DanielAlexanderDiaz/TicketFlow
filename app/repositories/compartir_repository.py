@@ -35,7 +35,7 @@ class CompartirRepository:
         
         return True if compartir else False
     
-    def listar_tickets_compartidos(self, id_usuario: int) -> list[TicketCompartir]:
+    def listar_tickets_compartidos(self, id_usuario: int) -> list[int]:
         query = select(TicketCompartir).where(TicketCompartir.id_usuario == id_usuario)
         compartir = self.db.exec(query).all()
         

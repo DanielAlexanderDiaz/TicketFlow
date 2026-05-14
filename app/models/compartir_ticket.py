@@ -1,6 +1,5 @@
 from typing import Optional
-from pydantic import Field
-from sqlmodel import SQLModel
+from sqlmodel import SQLModel, Field
 
 class TicketCompartir(SQLModel, table=True):
     __tablename__ = "ticket_compartir"
