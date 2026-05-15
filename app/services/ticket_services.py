@@ -30,13 +30,17 @@ class TicketService:
             combinar.setdefault(ticket.id, ticket)
             
         return sorted(combinar.values(), key=lambda t: t.id, reverse=True)
-        
-        
-    def ticket_by_id(self, id_ticket: int) -> Ticket | None:
+               
+    def ticket_by_id(self, id_ticket: int, id_usuario: int) -> Ticket | None:
         ticket =  self.ticket.get_ticket_by_id(id_ticket)
+        compartir = self.compartir.tiene_ticket_compartido(id_ticket, id_usuario)
+        
         if not ticket:
             raise HTTPException(status_code=404, detail=f"No se encontro el ticket {id_ticket}")
-        return ticket
+        if ticket.id_usuario != id_usuario and not compartir:
+            raise HTTPException(status_code=404, detail=f"No se encontro el ticket {id_ticket}")
+        
+        return ticket   
     
     def listar_tickets(self) -> list[Ticket]:
         return self.ticket.listar_tickets()
@@ -68,7 +72,10 @@ class TicketService:
     
     def actualizar_ticket(self, id_ticket: int, payload: ActualizarTicket, id_usuario: int) -> Ticket:
         ticket = self.ticket.get_ticket_by_id(id_ticket)
+        compartir = self.compartir.tiene_ticket_compartido(id_ticket, id_usuario)
         if not ticket:
+            raise HTTPException(status_code=404, detail=f"No se encontro el ticket {id_ticket}")
+        if not compartir:
             raise HTTPException(status_code=404, detail=f"No se encontro el ticket {id_ticket}")
         
         actualizar = payload.model_dump(exclude_unset=True)
