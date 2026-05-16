@@ -1,6 +1,5 @@
 from sqlmodel import Session, select
 from app.models.ticket import Ticket, TicketAuditoria
-from app.schemas.ticket import HistorialTicket
 
 
 class TicketRepositorio:
@@ -11,10 +10,12 @@ class TicketRepositorio:
         return self.db.get(Ticket, id_ticket)
     
     def get_ticket_by_usuario(self, id_usuario: int) -> list[Ticket]:
-        return self.db.exec(select(Ticket).where(Ticket.id_usuario == id_usuario)).all()
+        query = select(Ticket).where(Ticket.id_usuario == id_usuario)
+        return self.db.exec(query).all()
     
-    def listar_tickets(self) -> list[Ticket]:        
-        return self.db.exec(select(Ticket)).all()
+    def listar_todos_tickets(self) -> list[Ticket]:
+        query = select(Ticket)
+        return self.db.exec(query).all()
     
     def crear_ticket(self, ticket: Ticket) -> Ticket:
         self.db.add(ticket)
@@ -23,7 +24,6 @@ class TicketRepositorio:
         return ticket
     
     def actualizar_ticket(self, ticket: Ticket) -> Ticket:
-        # self.db.add(ticket)
         self.db.commit()
         self.db.refresh(ticket)
         return ticket
@@ -40,7 +40,7 @@ class TicketRepositorio:
         self.db.refresh(auditoria)
         return auditoria
     
-    def get_ticket_historial(self, id_ticket: int) -> list[HistorialTicket]:
+    def get_ticket_historial(self, id_ticket: int) -> list[TicketAuditoria]:
         query = select(TicketAuditoria).where(TicketAuditoria.id_ticket == id_ticket).order_by(TicketAuditoria.fecha_cambio.desc())
         return self.db.exec(query).all()
     
