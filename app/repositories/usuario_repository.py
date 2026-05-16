@@ -10,10 +10,12 @@ class UsuarioRepositorio:
         return self.db.get(Usuario, id_usuario)
 
     def get_usuario_by_email(self, email: EmailStr) -> Usuario | None:
-        return self.db.exec(select(Usuario).where(Usuario.email == email)).first()       
+        query = select(Usuario).where(Usuario.email == email)
+        return self.db.exec(query).first()       
     
     def listar_usuarios(self) -> list[Usuario] | None:
-        return self.db.exec(select(Usuario)).all()
+        query = select(Usuario)
+        return self.db.exec(query).all()
     
     def crear_usuario(self, usuario: Usuario) -> Usuario:
         self.db.add(usuario)
