@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from app.api.dependencias import DBSession, UsuarioActual, requiere_admin, PermisoAdmin, puede_gestionar_ticket
+from app.api.dependencias import DBSession, UsuarioActual, requiere_admin, puede_gestionar_ticket
 from app.schemas.ticket import InfoTicket, ActualizarTicket, CrearTicket, HistorialTicket
 from app.services.ticket_services import TicketService
 
