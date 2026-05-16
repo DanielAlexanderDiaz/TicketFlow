@@ -1,7 +1,8 @@
 from datetime import datetime
 from fastapi import HTTPException
 from sqlmodel import Session
-from app.models.ticket import ActualizarTicket, CrearTicket, HistorialTicket, Ticket, TicketAuditoria
+from app.models.ticket import Ticket, TicketAuditoria
+from app.schemas.ticket import ActualizarTicket, CrearTicket, HistorialTicket
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio

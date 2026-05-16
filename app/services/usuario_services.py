@@ -1,6 +1,7 @@
 from fastapi import HTTPException, Query
 from sqlmodel import Session
-from app.models.usuario import ActualizarRol, ActualizarUsuario, Usuario
+from app.models.usuario import Usuario
+from app.schemas.usuario import ActualizarRol, ActualizarUsuario
 from app.repositories.usuario_repository import UsuarioRepositorio
 
 

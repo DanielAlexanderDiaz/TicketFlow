@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from sqlmodel import Session
-from app.models.compartir_ticket import TicketCompartir
 from app.models.ticket import TicketAuditoria
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio

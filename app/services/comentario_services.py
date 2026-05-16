@@ -1,7 +1,8 @@
 from datetime import datetime
 from fastapi import HTTPException
 from sqlmodel import Session
-from app.models.comentario import Comentario, ActualizarComentario, CrearComentario, InfoComentario
+from app.models.comentario import Comentario
+from app.schemas.comentario import InfoComentario, ActualizarComentario, CrearComentario
 from app.repositories.comentario_repository import ComentarioRepositorio
 from app.services.ticket_services import TicketService
 
