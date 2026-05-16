@@ -1,10 +1,11 @@
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+import jwt
 from sqlmodel import Session
 from app.core.db import get_session
 from app.core.seguridad import PERMISOS_ROLES, Permisos, RoleUser, decoder_token
-from app.models.usuario import RoleEnum, Usuario
+from app.models.usuario import Usuario
 from app.repositories.usuario_repository import UsuarioRepositorio
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
@@ -15,19 +16,21 @@ def get_db() -> Session:
 DBSession = Annotated[Session, Depends(get_db)]
 
 def get_usuario_actual(token: Annotated[str, Depends(oauth2_scheme)], db: DBSession) -> Usuario:
-    exepcion_credencial = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No autorizado", headers={"WWW-Authenticate": "Bearer"})
+    excepcion_credencial = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No autorizado", headers={"WWW-Authenticate": "Bearer"})
 
     try:
         payload = decoder_token(token)
         id_usuario = int(payload.get("sub"))
-    except:
-        raise exepcion_credencial
+        if id_usuario is None:
+            raise ValueError("Token inválido: falta sub")
+    except (jwt.PyJWTError, ValueError, TypeError, Exception) as e:
+        raise excepcion_credencial
     
     repo = UsuarioRepositorio(db)
     usuario = repo.get_usuario_by_id(id_usuario)
     
     if not usuario:
-        raise exepcion_credencial
+        raise excepcion_credencial
     return usuario
 
 UsuarioActual = Annotated[Usuario, Depends(get_usuario_actual)]
@@ -38,7 +41,7 @@ class VerificarRol:
         
     def __call__(self, usuario_actual: UsuarioActual):
         if usuario_actual.rol not in self.roles_permitidos:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No autorizado")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No se tiene rol permitido")
         return usuario_actual
     
 class VerificarPermisos:
@@ -48,7 +51,7 @@ class VerificarPermisos:
     def __call__(self, usuario_actual: UsuarioActual):
         usuario_permitido = PERMISOS_ROLES.get(usuario_actual.rol, set())
         if not all(perm in usuario_permitido for perm in self.permisos_necesarios):
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No autorizado")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No se tienen permisos suficientes")
         return usuario_actual
     
 requiere_admin = VerificarRol([RoleUser.ADMIN, RoleUser.SUPERUSER])
