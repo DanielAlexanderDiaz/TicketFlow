@@ -7,5 +7,3 @@ class TicketCompartir(SQLModel, table=True):
     id_ticket: int = Field(foreign_key="ticket.id", index=True)
     id_usuario: int = Field(foreign_key="usuario.id", index=True)
     
-class solicitudCompartir(SQLModel):
-    id_usuario_compartido: int = Field(gt=0)     

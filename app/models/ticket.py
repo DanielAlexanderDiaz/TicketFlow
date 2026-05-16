@@ -4,14 +4,14 @@ from typing import Optional
 from sqlmodel import Field, SQLModel
 
 class EstadoTicket(str, Enum):
-    pendiente = "Pendiente"
-    en_progreso = "En progreso"
-    finalizado = "Finalizado"
+    PENDIENTE = "Pendiente"
+    EN_PROGRESO = "en_progreso"
+    FINALIZADO = "finalizado"
     
 class PrioridadTicket(str, Enum):
-    baja = "Baja"
-    media = "Media"
-    alta = "Alta"
+    BAJA = "baja"
+    MEDIA = "media"
+    ALTA = "alta"
 
 class Ticket(SQLModel, table=True):
     __tablename__ = "ticket"
@@ -36,35 +36,3 @@ class TicketAuditoria(SQLModel, table=True):
     valor_nuevo: str | None = Field(default=None)
     accion: str = Field(default="actualizado")
     
-class CrearTicket(SQLModel):
-    titulo: str
-    descripcion: str
-    
-class ActualizarTicket(SQLModel):
-    titulo: Optional[str] = None
-    descripcion: Optional[str] = None
-    estado: Optional[EstadoTicket] = None
-    prioridad: Optional[PrioridadTicket] = None
-    
-class InfoTicket(SQLModel):
-    id: int
-    id_usuario: int
-    titulo: str
-    descripcion: str
-    estado: EstadoTicket
-    prioridad: PrioridadTicket
-    fecha_creacion: datetime
-    fecha_actualizacion: datetime
-    model_config = {"from_attributes": True}
-    
-class HistorialTicket(SQLModel):
-    id: int
-    id_ticket: int
-    id_usuario: int
-    id_usuario_compartido: int | None = None 
-    campo_cambiado: str
-    fecha_cambio: datetime
-    valor_anterior: str | None = None
-    valor_nuevo: str | None = None
-    accion: str
-    model_config = {"from_attributes": True}
