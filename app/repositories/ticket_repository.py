@@ -1,5 +1,6 @@
 from sqlmodel import Session, select
-from app.models.ticket import HistorialTicket, Ticket, TicketAuditoria
+from app.models.ticket import Ticket, TicketAuditoria
+from app.schemas.ticket import HistorialTicket
 
 
 class TicketRepositorio:
