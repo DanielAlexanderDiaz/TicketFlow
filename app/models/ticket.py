@@ -20,8 +20,8 @@ class Ticket(SQLModel, table=True):
     descripcion: str 
     fecha_creacion: datetime = Field(default_factory=datetime.now)
     fecha_actualizacion: datetime = Field(default_factory=datetime.now)
-    estado: EstadoTicket = Field(default=EstadoTicket.pendiente)
-    prioridad: PrioridadTicket = Field(default=PrioridadTicket.baja)
+    estado: EstadoTicket = Field(default=EstadoTicket.PENDIENTE)
+    prioridad: PrioridadTicket = Field(default=PrioridadTicket.BAJA)
     id_usuario: int = Field(foreign_key="usuario.id", index=True)
     
 class TicketAuditoria(SQLModel, table=True):

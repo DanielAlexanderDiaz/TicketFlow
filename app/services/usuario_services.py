@@ -13,7 +13,7 @@ class UsuarioService:
         lista = self.usuario_repo.listar_usuarios()
         if not lista:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No se encontraron usuarios')
-        return InfoUsuario.model_validate(lista)
+        return [InfoUsuario.model_validate(l) for l in lista]
         
     def informacion_usuario(self, id_usuario: int):
         usuario = self.usuario_repo.get_usuario_by_id(id_usuario)

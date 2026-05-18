@@ -1,6 +1,5 @@
 from datetime import datetime
-from enum import Enum
-from core.seguridad import RoleUser
+from app.core.seguridad import RoleUser
 from pydantic import EmailStr
 from sqlmodel import Field, SQLModel
 
