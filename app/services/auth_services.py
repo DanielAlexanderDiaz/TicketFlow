@@ -28,6 +28,8 @@ class AuthServices:
         #persistir en db
         usuario_creado = self.repo.crear_usuario(usuario_db)
         
+        
+        
         return InfoUsuario.model_validate(usuario_creado)
         
 

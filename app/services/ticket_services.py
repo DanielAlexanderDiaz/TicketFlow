@@ -1,7 +1,9 @@
 from datetime import datetime
 from fastapi import HTTPException, status
 from sqlmodel import Session
-from app.models.ticket import Ticket, TicketAuditoria
+from app.models.auditoria import Auditoria
+from app.models.ticket import Ticket
+from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.schemas.ticket import InfoTicket
 from app.schemas.ticket import ActualizarTicket, CrearTicket, HistorialTicket
 from app.repositories.compartir_repository import CompartirRepository
@@ -15,6 +17,7 @@ class TicketService:
         self.usuario_repo = UsuarioRepositorio(db)
         self.ticket_repo = TicketRepositorio(db)
         self.compartir_repo = CompartirRepository(db)
+        self.auditoria_repo = AuditoriaRepositorio(db)
         
     def ticket_by_usuario(self, id_usuario: int) -> list[InfoTicket]:
         # validar
@@ -72,17 +75,19 @@ class TicketService:
         ticket_guardado = self.ticket_repo.crear_ticket(ticket)
         
         # Guardar auditoria
-        self.ticket_repo.crear_audtoria(TicketAuditoria(
-            id_ticket=ticket_guardado.id, 
-            id_usuario=id_usuario, 
-            id_usuario_compartido=None,
-            campo_cambiado="*", 
-            valor_anterior=None,
-            valor_nuevo="Ticket creado",
-            accion = "creado"
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "ticket",
+            id_entidad = ticket_guardado.id, 
+            id_usuario = id_usuario,
+            id_usuario_compartido = None,
+            campo_cambiado="*",
+            fecha_cambio=datetime.now(),
+            valor_anterior="*",
+            valor_nuevo="Creacion de ticket",
+            accion="creado"
             ))
         
-        return [InfoTicket.model_validate(ticket_guardado)]
+        return InfoTicket.model_validate(ticket_guardado)
     
     def actualizar_ticket(self, id_ticket: int, payload: ActualizarTicket, id_usuario: int) -> InfoTicket:
         # validar
@@ -107,14 +112,16 @@ class TicketService:
             
         # Guardar auditoria
         if str(valor_anterior) != str(nuevo_valor):
-            self.ticket_repo.crear_audtoria(TicketAuditoria(
-                id_ticket=ticket.id, 
-                id_usuario=id_usuario, 
-                id_usuario_compartido=None,
-                campo_cambiado=campo, 
+            self.auditoria_repo.crear_audtoria(Auditoria(      
+                entidad = "ticket",
+                id_entidad = id_ticket, 
+                id_usuario = id_usuario,
+                id_usuario_compartido = None,
+                campo_cambiado=campo,
+                fecha_cambio=datetime.now(),
                 valor_anterior=str(valor_anterior),
                 valor_nuevo=str(nuevo_valor),
-                accion = "actualizado"
+                accion="actualizado"
                 ))
         
         ticket.fecha_actualizacion = datetime.now()

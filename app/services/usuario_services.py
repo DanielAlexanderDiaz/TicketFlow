@@ -1,6 +1,8 @@
+from datetime import datetime
 from fastapi import HTTPException, Query, status
 from sqlmodel import Session
-from app.models.usuario import Usuario
+from app.models.auditoria import Auditoria
+from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.schemas.usuario import ActualizarRol, ActualizarUsuario, InfoUsuario
 from app.repositories.usuario_repository import UsuarioRepositorio
 
@@ -8,6 +10,7 @@ class UsuarioService:
     def __init__(self, db: Session):
         self.db = db
         self.usuario_repo = UsuarioRepositorio(db)
+        self.auditoria_repo = AuditoriaRepositorio(db)
         
     def listar_usuarios(self) -> list[InfoUsuario]:
         lista = self.usuario_repo.listar_usuarios()
@@ -42,6 +45,19 @@ class UsuarioService:
             valor_anterior = getattr(usuario, campo, None)
             setattr(usuario, campo, nuevo_valor)
             
+        if str(valor_anterior) != str(nuevo_valor):
+            self.auditoria_repo.crear_audtoria(Auditoria(
+                entidad = "usuario",
+                id_entidad = id_usuario, 
+                id_usuario = id_usuario,
+                id_usuario_compartido = None,
+                campo_cambiado=campo,
+                fecha_cambio=datetime.now(),
+                valor_anterior=str(valor_anterior),
+                valor_nuevo=str(nuevo_valor),
+                accion="actualizado"
+                ))
+            
         usuario_actualizado = self.usuario_repo.actualizar_usuario(usuario)
         
         return InfoUsuario.model_validate(usuario_actualizado)
@@ -51,8 +67,29 @@ class UsuarioService:
         usuario = self.usuario_repo.get_usuario_by_id(id_usuario)    
         if not usuario:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
+       
+        datos = payload.model_dump(exclude_unset=True)
+        if not datos:
+            return InfoUsuario.model_validate(usuario)
+        
+        # obtener valores anteriores
+        for campo, nuevo_valor in datos.items():
+            valor_anterior = getattr(usuario, campo, None)
+            setattr(usuario, campo, nuevo_valor)
+            
+        if str(valor_anterior) != str(nuevo_valor):
+            self.auditoria_repo.crear_audtoria(Auditoria(
+                entidad = "usuario",
+                id_entidad = id_usuario, 
+                id_usuario = id_usuario,
+                id_usuario_compartido = None,
+                campo_cambiado=campo,
+                fecha_cambio=datetime.now(),
+                valor_anterior=str(valor_anterior),
+                valor_nuevo=str(nuevo_valor),
+                accion="actualizado"
+                ))
 
-        usuario.rol = payload.rol
         usuario_actualizado = self.usuario_repo.actualizar_usuario(usuario)
         
         return InfoUsuario.model_validate(usuario_actualizado)

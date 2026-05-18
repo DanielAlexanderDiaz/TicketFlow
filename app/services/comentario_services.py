@@ -1,7 +1,9 @@
 from datetime import datetime
 from fastapi import HTTPException, status
 from sqlmodel import Session
+from app.models.auditoria import Auditoria
 from app.models.comentario import Comentario
+from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.repositories.ticket_repository import TicketRepositorio
 from app.schemas.comentario import InfoComentario, ActualizarComentario, CrearComentario
 from app.repositories.comentario_repository import ComentarioRepositorio
@@ -12,6 +14,7 @@ class ComentarioService():
         self.db = db
         self.comentario_repo = ComentarioRepositorio(db)
         self.ticket_repo = TicketRepositorio(db)
+        self.auditoria_repo = AuditoriaRepositorio(db)
         
     def comentario_by_id(self, id_comentario: int) -> InfoComentario:
         comentario = self.comentario_repo.get_comentario_by_id(id_comentario)
@@ -32,7 +35,7 @@ class ComentarioService():
         return [InfoComentario.model_validate(c) for c in comentario]
     
     def crear_comentario(self, id_ticket: int, id_usuario: int, payload: CrearComentario) -> InfoComentario:
-        ticket = self.ticket_repo.ticket_by_id(id_ticket)
+        ticket = self.ticket_repo.get_ticket_by_id(id_ticket)
         if not ticket:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Ticket {id_ticket} no encontrado")
         
@@ -41,12 +44,26 @@ class ComentarioService():
         comentario.id_usuario = id_usuario
         comentario.fecha_creacion = datetime.now()
         
+       
         comentario_guardado = self.comentario_repo.crear_comentario(comentario)
+        
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "comentario",
+            id_entidad=comentario_guardado.id,
+            id_usuario=id_usuario,
+            id_usuario_compartido=None,
+            campo_cambiado="*",
+            fecha_cambio=datetime.now(),
+            valor_anterior=None,
+            valor_nuevo="comentario creado",
+            accion="creado"
+        ))
+        
         
         return InfoComentario.model_validate(comentario_guardado)
     
     def actualizar_comentario(self, id_comentario: int, id_usuario: int, payload: ActualizarComentario) -> InfoComentario:
-        comentario = self.ticket_repo.get_comentario_by_id(id_comentario)
+        comentario = self.comentario_repo.get_comentario_by_id(id_comentario)
         if comentario is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Comentario {id_comentario} no encontrado")
         
@@ -61,6 +78,19 @@ class ComentarioService():
         for campo, nuevo_valor in datos.items():
             valor_anterior = getattr(comentario, campo, None)
             setattr(comentario, campo, nuevo_valor)
+            
+        if str(valor_anterior) != str(nuevo_valor):
+            self.auditoria_repo.crear_audtoria(Auditoria(
+                entidad = "comentario",
+                id_entidad = id_comentario, 
+                id_usuario = id_usuario,
+                id_usuario_compartido = None,
+                campo_cambiado=campo,
+                fecha_cambio=datetime.now(),
+                valor_anterior=str(valor_anterior),
+                valor_nuevo=str(nuevo_valor),
+                accion="actualizado"
+                ))
             
         comentario.fecha_actualizacion = datetime.now()    
         comentario_actualizado = self.comentario_repo.actualizar_comentario(comentario)
