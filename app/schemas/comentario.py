@@ -14,6 +14,7 @@ class InfoComentario(BaseModel):
     id_usuario: int
     comentario: str
     fecha_creacion: datetime
+    fecha_actualizacion: datetime
     model_config = ConfigDict(from_attributes = True)
     
     

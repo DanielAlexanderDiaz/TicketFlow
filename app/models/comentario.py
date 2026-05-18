@@ -8,4 +8,5 @@ class Comentario(SQLModel, table=True):
     id_usuario: int = Field(foreign_key="usuario.id", index=True)
     comentario: str
     fecha_creacion: datetime = Field(default=datetime.now())
+    fecha_actualizacion: datetime = Field(default=datetime.now())
     
