@@ -33,14 +33,4 @@ class TicketRepositorio:
         query = select(Ticket).where(Ticket.id.in_(ids))
         return self.db.exec(query).all()
     
-    # def crear_audtoria(self, auditoria: TicketAuditoria) -> TicketAuditoria:
-    #     self.db.add(auditoria)
-    #     self.db.commit()
-    #     self.db.refresh(auditoria)
-    #     return auditoria
-    
-    # def get_ticket_historial(self, id_ticket: int) -> list[TicketAuditoria]:
-    #     query = select(TicketAuditoria).where(TicketAuditoria.id_ticket == id_ticket).order_by(TicketAuditoria.fecha_cambio.desc())
-    #     return self.db.exec(query).all()
-    
     

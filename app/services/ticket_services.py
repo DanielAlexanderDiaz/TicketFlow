@@ -4,8 +4,7 @@ from sqlmodel import Session
 from app.models.auditoria import Auditoria
 from app.models.ticket import Ticket
 from app.repositories.auditoria_repository import AuditoriaRepositorio
-from app.schemas.ticket import InfoTicket
-from app.schemas.ticket import ActualizarTicket, CrearTicket, HistorialTicket
+from app.schemas.ticket import ActualizarTickekActivo, ActualizarTicket, CrearTicket, HistorialTicket, InfoTicket
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
@@ -125,6 +124,38 @@ class TicketService:
                 ))
         
         ticket.fecha_actualizacion = datetime.now()
+        ticket_actualizado = self.ticket_repo.actualizar_ticket(ticket)
+        
+        return InfoTicket.model_validate(ticket_actualizado)
+
+    def actualizar_ticket_activo(self, id_ticket: int, id_usuario: int, payload: ActualizarTickekActivo) -> InfoTicket:
+        ticket =  self.ticket_repo.get_ticket_by_id(id_ticket)
+        if not ticket:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"ticket {id_ticket} no encontrado")
+        
+        # valida si es propietario o compartido
+        es_propietario = ticket.id_usuario == id_usuario
+        if not es_propietario:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"No se tiene permiso para actualizar el ticket {id_ticket}")
+        
+        valor_anterior = ticket.activo
+        nuevo_valor = payload.activo
+        
+        ticket.activo = payload.activo
+        
+        if str(valor_anterior) != str(nuevo_valor):
+            self.auditoria_repo.crear_audtoria(Auditoria(
+                entidad = "ticket",
+                id_entidad = id_ticket, 
+                id_usuario = id_usuario,
+                id_usuario_compartido = None,
+                campo_cambiado="activo",
+                fecha_cambio=datetime.now(),
+                valor_anterior=str(valor_anterior),
+                valor_nuevo=str(nuevo_valor),
+                accion="actualizado"
+                ))
+        
         ticket_actualizado = self.ticket_repo.actualizar_ticket(ticket)
         
         return InfoTicket.model_validate(ticket_actualizado)

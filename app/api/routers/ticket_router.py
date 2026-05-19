@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from app.api.dependencias import DBSession, UsuarioActual, requiere_admin, puede_gestionar_ticket
-from app.schemas.ticket import InfoTicket, ActualizarTicket, CrearTicket, HistorialTicket
+from app.schemas.ticket import ActualizarTickekActivo, InfoTicket, ActualizarTicket, CrearTicket, HistorialTicket
 from app.services.ticket_services import TicketService
 
 router = APIRouter(prefix="/ticket", tags=["ticket"])
@@ -28,3 +28,7 @@ def crear_ticket(payload: CrearTicket, db: DBSession, usuario: UsuarioActual):
 @router.patch("/{id_ticket}", response_model=InfoTicket, dependencies=[Depends(puede_gestionar_ticket)])
 def actualizar_ticket(id_ticket: int, payload: ActualizarTicket, db: DBSession, usuario: UsuarioActual):
     return TicketService(db).actualizar_ticket(id_ticket, payload, usuario.id)
+
+@router.patch("/{id_ticket}/vigencia", response_model=InfoTicket, dependencies=[Depends(puede_gestionar_ticket)])
+def actualizar_ticket_activo(id_ticket: int, payload: ActualizarTickekActivo, db: DBSession, usuario: UsuarioActual):
+    return TicketService(db).actualizar_ticket_activo(id_ticket, usuario.id, payload)

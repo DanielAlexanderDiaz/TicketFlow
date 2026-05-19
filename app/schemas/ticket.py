@@ -14,6 +14,9 @@ class ActualizarTicket(BaseModel):
     estado: Optional[EstadoTicket] = None
     prioridad: Optional[PrioridadTicket] = None
     
+class ActualizarTickekActivo(BaseModel):
+    activo: bool
+    
 class InfoTicket(BaseModel):
     id: int
     id_usuario: int
