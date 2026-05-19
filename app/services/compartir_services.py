@@ -1,7 +1,6 @@
 from datetime import datetime
 from fastapi import HTTPException, status
 from sqlmodel import Session
-from app.models import ticket, usuario
 from app.models.auditoria import Auditoria
 from app.models.compartir_ticket import TicketCompartir
 from app.repositories.auditoria_repository import AuditoriaRepositorio
@@ -54,34 +53,25 @@ class CompartirServicie:
     
         return InfoCompartir.model_validate(compartir)
     
-    # def remover_compartir_ticket(self, id_ticket: int, id_usuario_propietario: int, id_usuario_compartido: int) -> None:
-    #     ticket = self.ticket_repo.get_ticket_by_id(id_ticket)
-    #     if not ticket:
-    #         raise HTTPException(status_code=404, detail=f"No se encontro el ticket {id_ticket}")
-    #     es_propietario = ticket.id_usuario == id_usuario_propietario
-    #     if not es_propietario:
-    #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No se encontro el ticket {id_ticket}")
-    #     usuario_compartir_existe = self.usuario_repo.get_usuario_by_id(id_usuario_compartido)
-    #     if not usuario_compartir_existe:
-    #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No se encontro el usuario compartido {id_usuario_compartido}")
+    def eliminar_compartir(self, id_ticket: int, id_usuario: int) -> None:
+        ticket = self.ticket_repo.get_ticket_by_id(id_ticket)
+        if not ticket:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el ticket")
         
+        es_propietario = ticket.id_usuario == id_usuario
+        if not es_propietario:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No es propietario del ticket")
         
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "compartir ticket",
+            id_entidad = id_ticket, 
+            id_usuario = id_usuario,
+            id_usuario_compartido = None,
+            campo_cambiado="*",
+            fecha_cambio=datetime.now(),
+            valor_anterior="Ticket compartido",
+            valor_nuevo="Ticket no compartido",
+            accion="eliminar compartir"
+        ))
         
-                
-    #     self.auditoria_repo.crear_audtoria(Auditoria(
-    #         entidad = "compartir",
-    #         id_entidad = id_ticket, 
-    #         id_usuario = id_usuario_propietario,
-    #         id_usuario_compartido = id_usuario_compartido,
-    #         campo_cambiado="*",
-    #         fecha_cambio=datetime.now(),
-    #         valor_anterior="Ticket compartido",
-    #         valor_nuevo="Ticket no compartido",
-    #         accion="remover"
-    #     ))
-        
-    #     compartir = self.compartir_repo.remover_compartir_ticket(id_ticket, id_usuario_compartido)
-        
-    #     return None
-        
-        # return InfoCompartir.model_validate(compartir)
+        self.compartir_repo.eliminar_compartir_ticket(id_ticket)
