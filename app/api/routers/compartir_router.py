@@ -11,5 +11,7 @@ def compartir_ticket(id_ticket: int, id_usuario_compartido: int, db: DBSession, 
     return CompartirServicie(db).compartir_ticket(id_ticket, usuario.id, id_usuario_compartido)
     
 # @router.delete("/ticket/{id_ticket}", response_model=InfoCompartir, status_code=status.HTTP_200_OK)
-# def quitar_compartir_ticket(id_ticket: int, payload: SolicitudCompartir, db: DBSession, usuario: UsuarioActual):
+# def quitar_compartir_ticket(id_ticket: int, id_usuario_compartido: int, db: DBSession, usuario: UsuarioActual):
 #     CompartirServicie(db).remover_compartir_ticket(id_ticket, usuario.id, id_usuario_compartido)
+     
+#     return None
