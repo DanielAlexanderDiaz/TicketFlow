@@ -11,6 +11,7 @@ class Usuario(SQLModel, table=True):
     hashed_password: str = Field(min_length=4, max_length=15)
     rol: RoleUser = Field(default=RoleUser.USER)
     fecha_creacion: datetime = Field(default=datetime.now())
+    activo: bool = Field(default=True)
     
 
     
