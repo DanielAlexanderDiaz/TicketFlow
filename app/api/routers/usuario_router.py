@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from app.api.dependencias import DBSession, UsuarioActual, requiere_admin
-from app.schemas.usuario import ActualizarRol, ActualizarUsuario, InfoUsuario
+from app.schemas.usuario import ActualizarEstado, ActualizarRol, ActualizarUsuario, InfoUsuario
 from app.services.usuario_services import UsuarioService
 
 router = APIRouter(prefix="/usuario", tags=["usuario"])
@@ -28,3 +28,7 @@ def actualizar_usuarios(id_usuario: int, payload: ActualizarUsuario, db: DBSessi
 @router.patch("/{id_usuario}/rol", response_model=InfoUsuario, dependencies=[Depends(requiere_admin)])
 def actualizar_rol_usuario(id_usuario: int, payload: ActualizarRol, db: DBSession):
     return UsuarioService(db).actualizar_rol(id_usuario, payload)
+
+@router.patch("/{id_usuario}/estado", response_model=InfoUsuario, dependencies=[Depends(requiere_admin)])
+def actualizar_estado_usuario(id_usuario: int, payload: ActualizarEstado, db: DBSession):
+    return UsuarioService(db).actualizar_estado(id_usuario, payload) 

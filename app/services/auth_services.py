@@ -41,6 +41,9 @@ class AuthServices:
         if not usuario or not verify_password(payload.password, usuario.hashed_password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales incorrectas", headers={"WWW-Authenticate": "Bearer"})
         
+        if usuario.activo == False:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Cuenta inactiva", headers={"WWW-Authenticate": "Bearer"})
+        
         #generar token
         token_data = {
             "sub": str(usuario.id),

@@ -3,7 +3,7 @@ from fastapi import HTTPException, Query, status
 from sqlmodel import Session
 from app.models.auditoria import Auditoria
 from app.repositories.auditoria_repository import AuditoriaRepositorio
-from app.schemas.usuario import ActualizarRol, ActualizarUsuario, InfoUsuario
+from app.schemas.usuario import ActualizarEstado, ActualizarRol, ActualizarUsuario, InfoUsuario
 from app.repositories.usuario_repository import UsuarioRepositorio
 
 class UsuarioService:
@@ -93,3 +93,30 @@ class UsuarioService:
         usuario_actualizado = self.usuario_repo.actualizar_usuario(usuario)
         
         return InfoUsuario.model_validate(usuario_actualizado)
+    
+    def actualizar_estado(self, id_usuario: int, payload: ActualizarEstado) -> InfoUsuario:
+        usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
+        if not usuario:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
+        
+        valor_anterior = usuario.activo
+        nuevo_valor = payload.activo
+        
+        usuario.activo = payload.activo
+        
+        if str(valor_anterior) != str(nuevo_valor):
+            self.auditoria_repo.crear_audtoria(Auditoria(
+                entidad = "usuario",
+                id_entidad = id_usuario, 
+                id_usuario = id_usuario,
+                id_usuario_compartido = None,
+                campo_cambiado="activo",
+                fecha_cambio=datetime.now(),
+                valor_anterior=str(valor_anterior),
+                valor_nuevo=str(nuevo_valor),
+                accion="actualizado"
+                ))
+        
+        self.usuario_repo.actualizar_usuario(usuario)
+        
+        return InfoUsuario.model_validate(usuario)

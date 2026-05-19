@@ -17,6 +17,12 @@ class CrearUsuario(BaseModel):
     
 class ActualizarUsuario(BaseModel):
     nombre_usuario: str 
+
+class ActualizarRol(BaseModel):
+    rol: RoleUser
+    
+class ActualizarEstado(BaseModel):
+    activo: bool
     
 class InfoUsuario(BaseModel):
     id: int
@@ -25,7 +31,4 @@ class InfoUsuario(BaseModel):
     rol: RoleUser
     fecha_creacion: datetime
     model_config = ConfigDict(from_attributes = True)
-    
-class ActualizarRol(BaseModel):
-    rol: RoleUser
     
