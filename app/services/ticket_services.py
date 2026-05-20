@@ -1,10 +1,11 @@
 from datetime import datetime
+from math import ceil
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.models.auditoria import Auditoria
 from app.models.ticket import Ticket
 from app.repositories.auditoria_repository import AuditoriaRepositorio
-from app.schemas.ticket import ActualizarTickekActivo, ActualizarTicket, CrearTicket, HistorialTicket, InfoTicket
+from app.schemas.ticket import ActualizarTickekActivo, ActualizarTicket, CrearTicket, HistorialTicket, InfoTicket, PaginacionTicket
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
@@ -168,3 +169,31 @@ class TicketService:
         
         registros = self.ticket_repo.get_ticket_historial(id_ticket)
         return [HistorialTicket.model_validate(h) for h in registros]
+    
+    def listar_ticket_paginado(
+        self,
+        estado = None,
+        prioridad = None,
+        activo = None,
+        titulo = None,
+        page: int = 1,
+        size: int = 10
+    ):
+        skip = (page - 1) * size
+        tickets, total = self.ticket_repo.listar_ticket_filtro(
+            estado, 
+            prioridad, 
+            activo, 
+            titulo, 
+            skip, 
+            size)
+        
+        return {
+            "items": [InfoTicket.model_validate(t) for t in tickets],
+            "total": total,
+            "page": page,
+            "size": size,
+            "pages": ceil(total / size)
+        }
+            
+        

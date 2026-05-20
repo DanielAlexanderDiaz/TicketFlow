@@ -39,3 +39,11 @@ class HistorialTicket(BaseModel):
     valor_nuevo: str | None = None
     accion: str
     model_config = ConfigDict(from_attributes = True)
+    
+class PaginacionTicket(BaseModel):
+    items: list[InfoTicket]
+    total: int
+    page: int
+    size: int
+    pages: int
+    

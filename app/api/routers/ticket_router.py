@@ -1,6 +1,9 @@
-from fastapi import APIRouter, Depends, status
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Query, status
 from app.api.dependencias import DBSession, UsuarioActual, requiere_admin, puede_gestionar_ticket
-from app.schemas.ticket import ActualizarTickekActivo, InfoTicket, ActualizarTicket, CrearTicket, HistorialTicket
+from app.models.ticket import EstadoTicket, PrioridadTicket
+from app.schemas.ticket import ActualizarTickekActivo, InfoTicket, ActualizarTicket, CrearTicket, HistorialTicket, PaginacionTicket
 from app.services.ticket_services import TicketService
 
 router = APIRouter(prefix="/ticket", tags=["ticket"])
@@ -32,3 +35,15 @@ def actualizar_ticket(id_ticket: int, payload: ActualizarTicket, db: DBSession, 
 @router.patch("/{id_ticket}/vigencia", response_model=InfoTicket, dependencies=[Depends(puede_gestionar_ticket)])
 def actualizar_ticket_activo(id_ticket: int, payload: ActualizarTickekActivo, db: DBSession, usuario: UsuarioActual):
     return TicketService(db).actualizar_ticket_activo(id_ticket, usuario.id, payload)
+
+@router.get("/listar_paginado", response_model=PaginacionTicket, dependencies=[Depends(requiere_admin)])
+def listar_ticket_paginado(
+    db: DBSession,
+    estado: Optional[EstadoTicket] = Query(None, description="Filtrar por estado"),
+    prioridad: Optional[PrioridadTicket] = Query(None, description="Filtrar por prioridad"),
+    activo: Optional[bool] = Query(None, description="Filtrar por activo/inactivo"),
+    titulo: Optional[str] = Query(None, max_length=100, description="Filtrar por titulo (Parcial)"),
+    page: int = Query(1, ge=1, description="Número de página"),
+    size: int = Query(10, ge=1, le=100, description="Número de elementos por página"),
+    ):
+    return TicketService(db).listar_ticket_paginado(estado, prioridad, activo, titulo, page, size)
