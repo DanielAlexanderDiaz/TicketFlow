@@ -1,5 +1,4 @@
 from typing import Optional
-
 from fastapi import APIRouter, Depends, Query, status
 from app.api.dependencias import DBSession, UsuarioActual, requiere_admin, puede_gestionar_ticket
 from app.models.ticket import EstadoTicket, PrioridadTicket
