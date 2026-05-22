@@ -16,12 +16,13 @@ class PrioridadTicket(str, Enum):
 class Ticket(SQLModel, table=True):
     __tablename__ = "ticket"
     id: Optional[int] = Field(default=None, primary_key=True)
-    titulo: str 
-    descripcion: str 
+    titulo: str
+    descripcion: str
     fecha_creacion: datetime = Field(default_factory=datetime.now)
     fecha_actualizacion: datetime = Field(default_factory=datetime.now)
     estado: EstadoTicket = Field(default=EstadoTicket.PENDIENTE)
     prioridad: PrioridadTicket = Field(default=PrioridadTicket.BAJA)
     id_usuario: int = Field(foreign_key="usuario.id", index=True)
     activo: bool = Field(default=True)
+    imagen_url: str = Field(default="")
 

@@ -9,6 +9,7 @@ from app.schemas.ticket import ActualizarTickekActivo, ActualizarTicket, CrearTi
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
+from app.utils.uploads_file import save_uploaded_img
 
 
 class TicketService:
@@ -94,39 +95,42 @@ class TicketService:
         ticket =  self.ticket_repo.get_ticket_by_id(id_ticket)
         if not ticket:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"ticket {id_ticket} no encontrado")
-        
+
         # valida si es propietario o compartido
         es_propietario = ticket.id_usuario == id_usuario
         tiene_acceso = self.compartir_repo.tiene_ticket_compartido(id_ticket, id_usuario)
         if not es_propietario and not tiene_acceso:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"No se tiene permiso para actualizar el ticket {id_ticket}")
-        
-        datos = payload.model_dump(exclude_unset=True)
-        if not datos:
+
+        if payload.imagen_url:
+            img_data = save_uploaded_img(payload.imagen_url)
+            ticket.imagen_url = img_data["url"]
+
+        datos = payload.model_dump(exclude_unset=True, exclude_none=True, exclude={"imagen_url"})
+        if not datos and not payload.imagen_url:
             return InfoTicket.model_validate(ticket)
-        
+
         # obtener valores anteriores
         for campo, nuevo_valor in datos.items():
             valor_anterior = getattr(ticket, campo, None)
             setattr(ticket, campo, nuevo_valor)
-            
-        # Guardar auditoria
-        if str(valor_anterior) != str(nuevo_valor):
-            self.auditoria_repo.crear_audtoria(Auditoria(      
-                entidad = "ticket",
-                id_entidad = id_ticket, 
-                id_usuario = id_usuario,
-                id_usuario_compartido = None,
-                campo_cambiado=campo,
-                fecha_cambio=datetime.now(),
-                valor_anterior=str(valor_anterior),
-                valor_nuevo=str(nuevo_valor),
-                accion="actualizado"
-                ))
-        
+
+            if str(valor_anterior) != str(nuevo_valor):
+                self.auditoria_repo.crear_audtoria(Auditoria(
+                    entidad = "ticket",
+                    id_entidad = id_ticket,
+                    id_usuario = id_usuario,
+                    id_usuario_compartido = None,
+                    campo_cambiado=campo,
+                    fecha_cambio=datetime.now(),
+                    valor_anterior=str(valor_anterior),
+                    valor_nuevo=str(nuevo_valor),
+                    accion="actualizado"
+                    ))
+
         ticket.fecha_actualizacion = datetime.now()
         ticket_actualizado = self.ticket_repo.actualizar_ticket(ticket)
-        
+
         return InfoTicket.model_validate(ticket_actualizado)
 
     def actualizar_ticket_activo(self, id_ticket: int, id_usuario: int, payload: ActualizarTickekActivo) -> InfoTicket:

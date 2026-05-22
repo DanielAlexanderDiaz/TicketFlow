@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
+from fastapi import UploadFile
 from app.models.ticket import EstadoTicket, PrioridadTicket
 
 
@@ -13,6 +14,7 @@ class ActualizarTicket(BaseModel):
     descripcion: Optional[str] = None
     estado: Optional[EstadoTicket] = None
     prioridad: Optional[PrioridadTicket] = None
+    imagen_url: Optional[UploadFile] = None
     
 class ActualizarTickekActivo(BaseModel):
     activo: bool
@@ -26,6 +28,7 @@ class InfoTicket(BaseModel):
     prioridad: PrioridadTicket
     fecha_creacion: datetime
     fecha_actualizacion: datetime
+    imagen_url: str = ""
     model_config = ConfigDict(from_attributes = True)
     
 class HistorialTicket(BaseModel):

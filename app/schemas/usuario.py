@@ -29,9 +29,10 @@ class ActualizarEstado(BaseModel):
     
 class InfoUsuario(BaseModel):
     id: int
-    nombre_usuario: str 
-    email: EmailStr 
+    nombre_usuario: str
+    email: EmailStr
     rol: RoleUser
     fecha_creacion: datetime
+    imagen_url: str = ""
     model_config = ConfigDict(from_attributes = True)
     
