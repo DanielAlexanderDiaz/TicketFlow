@@ -2,7 +2,8 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query, status, File, UploadFile
 from app.api.dependencias import DBSession, UsuarioActual, requiere_admin, puede_gestionar_ticket
 from app.models.ticket import EstadoTicket, PrioridadTicket
-from app.schemas.ticket import ActualizarTickekActivo, InfoTicket, ActualizarTicket, CrearTicket, HistorialTicket, PaginacionTicket
+from app.schemas.ticket import ActualizarEstadoTicket, ActualizarTickekActivo, InfoTicket, ActualizarTicket, CrearTicket, HistorialTicket, PaginacionTicket
+from app.services.ticket_estado_services import TicketEstadoServices
 from app.services.ticket_services import TicketService
 
 router = APIRouter(prefix="/ticket", tags=["ticket"])
@@ -44,9 +45,13 @@ def actualizar_ticket_activo(id_ticket: int, payload: ActualizarTickekActivo, db
     return TicketService(db).actualizar_ticket_activo(id_ticket, usuario.id, payload)
 
 @router.patch("/{id_ticket}/imagen", response_model=InfoTicket, dependencies=[Depends(puede_gestionar_ticket)])
-def actualizar_imagen_ticket(db: DBSession, id_ticket: int, img: Optional[UploadFile] = File(None), usuario: UsuarioActual = Depends()):
+def actualizar_imagen_ticket(db: DBSession, usuario: UsuarioActual,id_ticket: int, img: Optional[UploadFile] = File(None)):
     payload = ActualizarTicket(imagen_url=img)
     return TicketService(db).actualizar_ticket(id_ticket, payload, usuario.id)
+
+@router.patch("/{id_ticket}/estado", response_model=InfoTicket, dependencies=[Depends(puede_gestionar_ticket)])
+def actualizar_cambiar_estado(db: DBSession, id_ticket: int, new_estado: ActualizarEstadoTicket, usuario: UsuarioActual):
+    return TicketEstadoServices(db).cambiar_estado_ticket(id_ticket, new_estado)
 
 @router.get("/{id_ticket}/historial", response_model=list[HistorialTicket], dependencies=[Depends(requiere_admin)])
 def obtener_historial(id_ticket: int, db: DBSession):

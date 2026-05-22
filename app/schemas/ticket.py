@@ -16,6 +16,9 @@ class ActualizarTicket(BaseModel):
     prioridad: Optional[PrioridadTicket] = None
     imagen_url: Optional[UploadFile] = None
     
+class ActualizarEstadoTicket(BaseModel):
+    estado: Optional[EstadoTicket]
+    
 class ActualizarTickekActivo(BaseModel):
     activo: bool
     
