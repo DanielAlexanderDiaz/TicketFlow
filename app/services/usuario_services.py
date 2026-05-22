@@ -1,10 +1,12 @@
 from datetime import datetime
+from email.mime import image
 from fastapi import HTTPException, Query, status
 from sqlmodel import Session
 from app.models.auditoria import Auditoria
 from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.schemas.usuario import ActualizarEstado, ActualizarRol, ActualizarUsuario, InfoUsuario
 from app.repositories.usuario_repository import UsuarioRepositorio
+from app.utils.uploads_file import save_uploaded_img
 
 class UsuarioService:
     def __init__(self, db: Session):
@@ -30,11 +32,17 @@ class UsuarioService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
         return InfoUsuario.model_validate(usuario)
     
-    def actualizar_usuario_id(self, id_usuario: int, payload: ActualizarUsuario) -> InfoUsuario:
+    def actualizar_usuario_id(self, id_usuario: int, imagen_url: str, payload: ActualizarUsuario) -> InfoUsuario:
         # valida
         usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
         if not usuario:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
+        
+        saved_img = None
+        if imagen_url:
+            saved_img = save_uploaded_img(imagen_url)
+        
+        usuario.imagen_url = saved_img["url"] if saved_img else None
         
         datos = payload.model_dump(exclude_unset=True)
         if not datos:
@@ -101,7 +109,6 @@ class UsuarioService:
         
         valor_anterior = usuario.activo
         nuevo_valor = payload.activo
-        
         usuario.activo = payload.activo
         
         if str(valor_anterior) != str(nuevo_valor):

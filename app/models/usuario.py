@@ -12,6 +12,7 @@ class Usuario(SQLModel, table=True):
     rol: RoleUser = Field(default=RoleUser.USER)
     fecha_creacion: datetime = Field(default=datetime.now())
     activo: bool = Field(default=True)
+    imagen_url: str = Field(default="")
     
 
     

@@ -1,15 +1,20 @@
 from contextlib import asynccontextmanager
+import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.core.db import init_db
 from app.api.routers.auth_router import router as auth_router
 from app.api.routers.usuario_router import router as usuario_router
 from app.api.routers.ticket_router import router as ticket_router
 from app.api.routers.comentario_router import router as comentario_router
 from app.api.routers.compartir_router import router as compartir_router
+from app.utils.uploads_file import MEDIA_DIR
 
 load_dotenv()
+
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,3 +42,6 @@ app.include_router(usuario_router, prefix="/api/v1")
 app.include_router(ticket_router, prefix="/api/v1")
 app.include_router(comentario_router, prefix="/api/v1")
 app.include_router(compartir_router, prefix="/api/v1")
+
+# os.makedirs(MEDIA_DIR, exist_ok=True)
+app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")

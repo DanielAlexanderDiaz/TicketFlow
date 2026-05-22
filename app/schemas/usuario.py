@@ -17,6 +17,7 @@ class CrearUsuario(BaseModel):
     
 class ActualizarUsuario(BaseModel):
     nombre_usuario: str 
+    imagen_url: str
 
 class ActualizarRol(BaseModel):
     rol: RoleUser

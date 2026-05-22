@@ -24,7 +24,6 @@ class UsuarioRepositorio:
         return usuario
     
     def actualizar_usuario(self, usuario: Usuario) -> Usuario:
-        # self.db.add(usuario)
         self.db.commit()
         self.db.refresh(usuario)
         return usuario
