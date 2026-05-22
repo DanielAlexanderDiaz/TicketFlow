@@ -1,6 +1,6 @@
 from datetime import datetime
 from email.mime import image
-from fastapi import HTTPException, Query, status
+from fastapi import HTTPException, Query, UploadFile, status
 from sqlmodel import Session
 from app.models.auditoria import Auditoria
 from app.repositories.auditoria_repository import AuditoriaRepositorio
@@ -32,19 +32,18 @@ class UsuarioService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
         return InfoUsuario.model_validate(usuario)
     
-    def actualizar_usuario_id(self, id_usuario: int, imagen_url: str, payload: ActualizarUsuario) -> InfoUsuario:
+    def actualizar_usuario_id(self, id_usuario: int, payload: ActualizarUsuario) -> InfoUsuario:
         # valida
         usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
         if not usuario:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
         
-        saved_img = None
-        if imagen_url:
-            saved_img = save_uploaded_img(imagen_url)
+        if payload.imagen_url:
+            img_data = save_uploaded_img(payload.imagen_url)
+            usuario.imagen_url = img_data["url"]
         
-        usuario.imagen_url = saved_img["url"] if saved_img else None
         
-        datos = payload.model_dump(exclude_unset=True)
+        datos = payload.model_dump(exclude_unset=True, exclude_none=True, exclude={"imagen_url"})
         if not datos:
             return InfoUsuario.model_validate(usuario)
         
@@ -53,18 +52,18 @@ class UsuarioService:
             valor_anterior = getattr(usuario, campo, None)
             setattr(usuario, campo, nuevo_valor)
             
-        if str(valor_anterior) != str(nuevo_valor):
-            self.auditoria_repo.crear_audtoria(Auditoria(
-                entidad = "usuario",
-                id_entidad = id_usuario, 
-                id_usuario = id_usuario,
-                id_usuario_compartido = None,
-                campo_cambiado=campo,
-                fecha_cambio=datetime.now(),
-                valor_anterior=str(valor_anterior),
-                valor_nuevo=str(nuevo_valor),
-                accion="actualizado"
-                ))
+            if str(valor_anterior) != str(nuevo_valor):
+                self.auditoria_repo.crear_audtoria(Auditoria(
+                    entidad = "usuario",
+                    id_entidad = id_usuario, 
+                    id_usuario = id_usuario,
+                    id_usuario_compartido = None,
+                    campo_cambiado=campo,
+                    fecha_cambio=datetime.now(),
+                    valor_anterior=str(valor_anterior),
+                    valor_nuevo=str(nuevo_valor),
+                    accion="actualizado"
+                    ))
             
         usuario_actualizado = self.usuario_repo.actualizar_usuario(usuario)
         

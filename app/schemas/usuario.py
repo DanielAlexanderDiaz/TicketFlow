@@ -1,4 +1,6 @@
 from datetime import datetime
+from typing import Optional
+from fastapi import UploadFile
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from app.core.seguridad import RoleUser
 
@@ -16,8 +18,8 @@ class CrearUsuario(BaseModel):
     hashed_password: str = Field(min_length=6, max_length=72, description="Contraseña en texto plano")
     
 class ActualizarUsuario(BaseModel):
-    nombre_usuario: str 
-    imagen_url: str
+    nombre_usuario: Optional[str]
+    imagen_url: Optional[UploadFile]
 
 class ActualizarRol(BaseModel):
     rol: RoleUser
