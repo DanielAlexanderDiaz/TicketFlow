@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, Depends, Query, status, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, Query, status, File, UploadFile
 from app.api.dependencias import DBSession, UsuarioActual, requiere_admin, puede_gestionar_ticket
 from app.models.ticket import EstadoTicket, PrioridadTicket
 from app.schemas.ticket import ActualizarEstadoTicket, ActualizarTickekActivo, InfoTicket, ActualizarTicket, CrearTicket, HistorialTicket, PaginacionTicket
@@ -55,4 +55,7 @@ def actualizar_cambiar_estado(db: DBSession, id_ticket: int, new_estado: Actuali
 
 @router.get("/{id_ticket}/historial", response_model=list[HistorialTicket], dependencies=[Depends(requiere_admin)])
 def obtener_historial(id_ticket: int, db: DBSession):
-    return TicketService(db).obtener_historial(id_ticket)
+    try:   
+        return TicketService(db).obtener_historial(id_ticket)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
