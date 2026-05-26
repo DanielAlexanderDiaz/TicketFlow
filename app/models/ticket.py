@@ -4,7 +4,7 @@ from typing import Optional
 from sqlmodel import Field, SQLModel
 
 class EstadoTicket(str, Enum):
-    PENDIENTE = "Pendiente"
+    PENDIENTE = "pendiente"
     EN_PROGRESO = "en_progreso"
     FINALIZADO = "finalizado"
     
