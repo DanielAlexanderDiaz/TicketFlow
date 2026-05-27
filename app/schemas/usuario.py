@@ -27,6 +27,9 @@ class ActualizarRol(BaseModel):
 class ActualizarEstado(BaseModel):
     activo: bool
     
+class ActualizarPermisos(BaseModel):
+    permisos_extra: list[str]
+    
 class InfoUsuario(BaseModel):
     id: int
     nombre_usuario: str
@@ -34,5 +37,6 @@ class InfoUsuario(BaseModel):
     rol: RoleUser
     fecha_creacion: datetime
     imagen_url: str = ""
+    permisos_extra: list[str] = Field(default=list)
     model_config = ConfigDict(from_attributes = True)
     

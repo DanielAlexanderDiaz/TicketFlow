@@ -49,11 +49,17 @@ class VerificarPermisos:
         self.permisos_necesarios = permisos_necesarios
         
     def __call__(self, usuario_actual: UsuarioActual):
-        usuario_permitido = PERMISOS_ROLES.get(usuario_actual.rol, set())
-        if not all(perm in usuario_permitido for perm in self.permisos_necesarios):
+        if usuario_actual.permiso_extra:
+            permiso_valido = {Permisos(p) for p in usuario_actual.permiso_extra}
+        else:    
+            permiso_valido = PERMISOS_ROLES.get(usuario_actual.rol, set())
+        
+        if not all(perm in permiso_valido for perm in self.permisos_necesarios):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No se tienen permisos suficientes")
         return usuario_actual
+    
     
 requiere_admin = VerificarRol([RoleUser.ADMIN, RoleUser.SUPERUSER])
 requiere_superuser = VerificarRol([RoleUser.SUPERUSER])
 puede_gestionar_ticket = VerificarPermisos([Permisos.TICKET_READ, Permisos.TICKET_WRITE])
+puede_crear_ticket = VerificarPermisos([Permisos.TICKET_WRITE])

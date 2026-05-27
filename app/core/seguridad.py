@@ -34,6 +34,6 @@ class Permisos(StrEnum):
     
 PERMISOS_ROLES: dict[RoleUser, set[Permisos]] = {
     RoleUser.USER: {Permisos.TICKET_READ, Permisos.TICKET_WRITE},
-    RoleUser.ADMIN: {Permisos.TICKET_READ, Permisos.TICKET_WRITE, Permisos.TICKET_DELETE, Permisos.USER_MANAGE},
+    RoleUser.ADMIN: {Permisos.TICKET_READ, Permisos.TICKET_DELETE, Permisos.USER_MANAGE},
     RoleUser.SUPERUSER: {p for p in Permisos},
 }

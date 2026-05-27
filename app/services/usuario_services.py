@@ -4,7 +4,7 @@ from fastapi import HTTPException, Query, UploadFile, status
 from sqlmodel import Session
 from app.models.auditoria import Auditoria
 from app.repositories.auditoria_repository import AuditoriaRepositorio
-from app.schemas.usuario import ActualizarEstado, ActualizarRol, ActualizarUsuario, InfoUsuario
+from app.schemas.usuario import ActualizarEstado, ActualizarPermisos, ActualizarRol, ActualizarUsuario, InfoUsuario
 from app.repositories.usuario_repository import UsuarioRepositorio
 from app.utils.uploads_file import save_uploaded_img
 
@@ -123,6 +123,16 @@ class UsuarioService:
                 accion="actualizado"
                 ))
         
+        self.usuario_repo.actualizar_usuario(usuario)
+        
+        return InfoUsuario.model_validate(usuario)
+    
+    def asignar_permisos(self, id_usuario: int, payload: ActualizarPermisos) -> InfoUsuario:
+        usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
+        if not usuario:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
+        
+        usuario.permisos = payload.permisos
         self.usuario_repo.actualizar_usuario(usuario)
         
         return InfoUsuario.model_validate(usuario)

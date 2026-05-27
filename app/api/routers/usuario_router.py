@@ -2,7 +2,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from app.api.dependencias import DBSession, UsuarioActual, requiere_admin
-from app.schemas.usuario import ActualizarEstado, ActualizarRol, ActualizarUsuario, InfoUsuario
+from app.schemas.usuario import ActualizarEstado, ActualizarPermisos, ActualizarRol, ActualizarUsuario, InfoUsuario
 from app.services.usuario_services import UsuarioService
 
 router = APIRouter(prefix="/usuario", tags=["usuario"])
@@ -40,3 +40,7 @@ def actualizar_rol_usuario(id_usuario: int, payload: ActualizarRol, db: DBSessio
 @router.patch("/{id_usuario}/estado", response_model=InfoUsuario, dependencies=[Depends(requiere_admin)])
 def actualizar_estado_usuario(id_usuario: int, payload: ActualizarEstado, db: DBSession):
     return UsuarioService(db).actualizar_estado(id_usuario, payload) 
+
+@router.patch("/{id_usuario}/permisos", response_model=InfoUsuario, dependencies=[Depends(requiere_admin)])
+def actualizar_permisos(id_usuario: int, payload: ActualizarPermisos, db: DBSession):
+    return UsuarioService(db).asignar_permisos(id_usuario, payload)

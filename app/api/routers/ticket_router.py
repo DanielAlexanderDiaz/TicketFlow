@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status, File, UploadFile
-from app.api.dependencias import DBSession, UsuarioActual, requiere_admin, puede_gestionar_ticket
+from app.api.dependencias import DBSession, UsuarioActual, requiere_admin, puede_gestionar_ticket, puede_crear_ticket
 from app.models.ticket import EstadoTicket, PrioridadTicket
 from app.schemas.ticket import ActualizarEstadoTicket, ActualizarTickekActivo, InfoTicket, ActualizarTicket, CrearTicket, HistorialTicket, PaginacionTicket
 from app.services.ticket_estado_services import TicketEstadoServices
@@ -28,7 +28,7 @@ def listar_ticket_paginado(
     ):
     return TicketService(db).listar_ticket_paginado(estado, prioridad, activo, titulo, page, size)
 
-@router.post("/", response_model=InfoTicket, status_code=status.HTTP_201_CREATED, dependencies=[Depends(puede_gestionar_ticket)])
+@router.post("/", response_model=InfoTicket, status_code=status.HTTP_201_CREATED, dependencies=[Depends(puede_crear_ticket)])
 def crear_ticket(payload: CrearTicket, db: DBSession, usuario: UsuarioActual):
     return TicketService(db).crear_ticket(usuario.id, payload)
 
