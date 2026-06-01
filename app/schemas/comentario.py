@@ -3,12 +3,17 @@ from pydantic import BaseModel, ConfigDict
 
 
 class CrearComentario(BaseModel):
+    id_ticket: int
     comentario: str
     
 class ActualizarComentario(BaseModel):
+    id_ticket: int
     comentario: str
     
-class InfoComentario(BaseModel):
+class EliminarComentario(BaseModel):
+    id_comentario: int
+    
+class InformacionComentario(BaseModel):
     id: int
     id_ticket: int
     id_usuario: int

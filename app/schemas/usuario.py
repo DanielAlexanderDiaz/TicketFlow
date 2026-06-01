@@ -1,8 +1,7 @@
 from datetime import datetime
 from typing import Optional
-from fastapi import UploadFile
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from app.core.seguridad import RoleUser
+from app.core.seguridad import RolUsuario
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -11,32 +10,31 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-
-class CrearUsuario(BaseModel):
-    nombre_usuario: str = Field(default="")
-    email: EmailStr 
-    hashed_password: str = Field(min_length=6, max_length=72, description="Contraseña en texto plano")
     
 class ActualizarUsuario(BaseModel):
     nombre_usuario: Optional[str]
-    imagen_url: Optional[UploadFile]
+    imagen_url: Optional[str]
+    
+class EliminarUsuario(BaseModel):
+    id: int
 
 class ActualizarRol(BaseModel):
-    rol: RoleUser
-    
-class ActualizarEstado(BaseModel):
-    activo: bool
+    rol: RolUsuario
     
 class ActualizarPermisos(BaseModel):
-    permisos_extra: list[str]
+    permiso: list[str]
     
-class InfoUsuario(BaseModel):
+class UsuarioActivo(BaseModel):
+    activo: bool
+
+class InformacionUsuario(BaseModel):
     id: int
     nombre_usuario: str
     email: EmailStr
-    rol: RoleUser
+    rol: RolUsuario
     fecha_creacion: datetime
     imagen_url: str = ""
-    permisos_extra: list[str] = Field(default=list)
+    activo: bool
+    permiso: list[str] = Field(default=list)
     model_config = ConfigDict(from_attributes = True)
     
