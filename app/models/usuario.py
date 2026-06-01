@@ -13,7 +13,7 @@ class Usuario(SQLModel, table=True):
     rol: RolUsuario = Field(default=RolUsuario.USER)
     fecha_creacion: datetime = Field(default_factory=datetime.now)
     activo: bool = Field(default=True)
-    imagen: str = Field(default="")
+    imagen_url: str = Field(default="")
     permiso: list[str] = Field(default=list, sa_column=Column(JSON))
     
 

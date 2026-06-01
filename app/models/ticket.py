@@ -27,5 +27,5 @@ class Ticket(SQLModel, table=True):
     id_usuario_creador: int = Field(foreign_key="usuario.id", index=True)
     asignado: Optional[int] = Field(default=None)
     activo: bool = Field(default=True)
-    imagen: str = Field(default="")
+    imagen_url: str = Field(default="")
 
