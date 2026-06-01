@@ -5,6 +5,7 @@ from pwdlib import PasswordHash
 from app.core.config import configuracion
 from enum import StrEnum
 
+
 pwd_context = PasswordHash.recommended()
  
 def hash_password(password: str) -> str:

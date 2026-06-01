@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import JSON
-from app.core.seguridad import RoleUser
+from app.core.seguridad import RolUsuario
 from pydantic import EmailStr
 from sqlmodel import Field, SQLModel, Column
 
@@ -10,11 +10,11 @@ class Usuario(SQLModel, table=True):
     nombre_usuario: str = Field(default="")
     email: EmailStr = Field(index=True, unique=True)
     hashed_password: str = Field(min_length=4, max_length=15)
-    rol: RoleUser = Field(default=RoleUser.USER)
-    fecha_creacion: datetime = Field(default=datetime.now())
+    rol: RolUsuario = Field(default=RolUsuario.USER)
+    fecha_creacion: datetime = Field(default_factory=datetime.now)
     activo: bool = Field(default=True)
-    imagen_url: str = Field(default="")
-    permiso_extra: list[str] = Field(default=list, sa_column=Column(JSON))
+    imagen: str = Field(default="")
+    permiso: list[str] = Field(default=list, sa_column=Column(JSON))
     
 
     

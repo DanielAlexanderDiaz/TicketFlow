@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Optional
 from sqlmodel import Field, SQLModel
 
+
 class EstadoTicket(str, Enum):
     PENDIENTE = "pendiente"
     EN_PROGRESO = "en_progreso"
@@ -12,6 +13,7 @@ class PrioridadTicket(str, Enum):
     BAJA = "baja"
     MEDIA = "media"
     ALTA = "alta"
+    CRITICA = "critica"
 
 class Ticket(SQLModel, table=True):
     __tablename__ = "ticket"
@@ -22,7 +24,8 @@ class Ticket(SQLModel, table=True):
     fecha_actualizacion: datetime = Field(default_factory=datetime.now)
     estado: EstadoTicket = Field(default=EstadoTicket.PENDIENTE)
     prioridad: PrioridadTicket = Field(default=PrioridadTicket.BAJA)
-    id_usuario: int = Field(foreign_key="usuario.id", index=True)
+    id_usuario_creador: int = Field(foreign_key="usuario.id", index=True)
+    asignado: Optional[int] = Field(default=None)
     activo: bool = Field(default=True)
-    imagen_url: str = Field(default="")
+    imagen: str = Field(default="")
 
