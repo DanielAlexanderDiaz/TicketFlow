@@ -3,6 +3,10 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from app.core.seguridad import RolUsuario
 
+class Registro(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6, max_length=72, description="Contraseña en texto plano")
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6, max_length=72, description="Contraseña en texto plano")

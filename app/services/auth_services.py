@@ -1,8 +1,8 @@
 import datetime
 from fastapi import HTTPException, status
-from app.core.seguridad import RoleUser, crear_token, hash_password, verify_password
+from app.core.seguridad import RolUsuario, crear_token, hash_password, verify_password
 from app.models.usuario import Usuario
-from app.schemas.usuario import CrearUsuario, InfoUsuario, LoginRequest, TokenResponse
+from app.schemas.usuario import Registro, LoginRequest, InformacionUsuario, TokenResponse
 from app.repositories.usuario_repository import UsuarioRepositorio
 
 
@@ -10,27 +10,20 @@ class AuthServices:
     def __init__(self, usuario_repositorio: UsuarioRepositorio):
         self.repo = usuario_repositorio
         
-    def registrar(self, payload: CrearUsuario) -> InfoUsuario:
+    def registrar(self, payload: Registro) -> InformacionUsuario:
         #validacion
         if self.repo.get_usuario_by_email(payload.email):
             raise HTTPException(status_code=400, detail="Email ya registrado")
         
         #convertir schema a db
-        datos_usuario = payload.model_dump(exclude={"hashed_password"})
-        usuario_db = Usuario(**datos_usuario)
-        
-        #aplicar reglas de seguridad y negocio
-        password_plano = payload.hashed_password
-        usuario_db.hashed_password = hash_password(password_plano)        
-        usuario_db.rol = RoleUser.USER
-        usuario_db.fecha_creacion = datetime.datetime.now()
+        usuario_db = Usuario(
+                        email=payload.email,
+                        password=hash_password(payload.password)
+                    )
         
         #persistir en db
         usuario_creado = self.repo.crear_usuario(usuario_db)
-        
-        
-        
-        return InfoUsuario.model_validate(usuario_creado)
+        return InformacionUsuario.model_validate(usuario_creado)
         
 
     def login(self, payload: LoginRequest) -> TokenResponse:

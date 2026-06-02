@@ -28,3 +28,7 @@ class UsuarioRepositorio:
         self.db.refresh(usuario)
         return usuario
     
+    def eliminar_usuario(self, usuario: Usuario) -> bool:
+        self.db.delete(usuario)
+        self.db.commit()
+        return True
