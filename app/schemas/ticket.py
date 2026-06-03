@@ -8,7 +8,6 @@ from app.models.ticket import EstadoTicket, PrioridadTicket
 class CrearTicket(BaseModel):
     titulo: str
     descripcion: str
-    prioridad: PrioridadTicket
     
 class ActualizarTicket(BaseModel):
     titulo: Optional[str] = None
