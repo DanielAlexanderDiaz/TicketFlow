@@ -1,5 +1,5 @@
 from sqlalchemy import func
-from sqlmodel import Session, desc, select
+from sqlmodel import Session, desc, select, delete
 from app.models.ticket import EstadoTicket, PrioridadTicket, Ticket
 from typing import Optional
 
@@ -28,6 +28,11 @@ class TicketRepositorio:
         self.db.commit()
         self.db.refresh(ticket)
         return ticket
+    
+    def eliminar_ticket(self, id_ticket: int) -> None:
+        query = delete(Ticket).where(Ticket.id == id_ticket)
+        self.db.exec(query)
+        self.db.commit()
     
     def lista_ids_ticket(self, ids: list[int]) -> list[Ticket]:
         if not ids:

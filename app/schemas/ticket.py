@@ -20,12 +20,13 @@ class EliminarTicket(BaseModel):
     id_ticket: int
     
 class CambioEstadoTicket(BaseModel):
-    id_ticket: int
     estado: EstadoTicket
 
 class AsignarTicket(BaseModel):
-    id_ticket: int
     id_usuario: int
+    
+class CompartirTicket(BaseModel):
+    id_usuario_compartido: int
     
 class TicketActivo(BaseModel):
     activo: bool

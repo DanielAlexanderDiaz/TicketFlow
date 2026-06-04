@@ -1,6 +1,5 @@
 from select import select
 from sqlmodel import Session
-
 from app.models.auditoria import Auditoria
 
 

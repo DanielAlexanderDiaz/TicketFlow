@@ -9,6 +9,12 @@ class EstadoTicket(str, Enum):
     EN_PROGRESO = "en_progreso"
     FINALIZADO = "finalizado"
     
+TRANSICIONES_PERMITIDAS = {
+    EstadoTicket.PENDIENTE: [EstadoTicket.EN_PROGRESO],
+    EstadoTicket.EN_PROGRESO: [EstadoTicket.FINALIZADO],
+    EstadoTicket.FINALIZADO: []
+}
+
 class PrioridadTicket(str, Enum):
     BAJA = "baja"
     MEDIA = "media"
