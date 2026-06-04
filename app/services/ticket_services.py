@@ -126,7 +126,9 @@ class TicketService:
         valor_anterior = ticket.estado
         valor_nuevo = payload.estado
     
-        ticket = self.transicionar_ticket(ticket, payload.estado)
+        nuevo_ticket = self.transicionar_ticket(ticket, payload.estado)
+        if not nuevo_ticket:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"No es posible pasar de {ticket.estado} a {payload.estado}.")
         
         self.auditoria_repo.crear_audtoria(Auditoria(
             entidad = "ticket",
@@ -139,8 +141,7 @@ class TicketService:
             accion="actualizado"
         ))
         
-        
-        ticket_actualizado = self.ticket_repo.actualizar_ticket(ticket)
+        ticket_actualizado = self.ticket_repo.actualizar_ticket(nuevo_ticket)
         return InformacionTicket.model_validate(ticket_actualizado)
         
     def asignar_ticket(self, id_ticket: int, payload: AsignarTicket) -> InformacionTicket: 
@@ -181,48 +182,46 @@ class TicketService:
         
         
         
-    def ticket_by_usuario(self, id_usuario: int) -> list[InformacionTicket]:
-        # validar
-        usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
-        if not usuario:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No se encontro el usuario {id_usuario}")
+    # def ticket_by_usuario(self, id_usuario: int) -> list[InformacionTicket]:
+    #     # validar
+    #     usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
+    #     if not usuario:
+    #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No se encontro el usuario {id_usuario}")
         
-        # Ticket que se comparten
-        compartidos = self.compartir_repo.listar_tickets_compartidos(id_usuario)
-        ids_compartidos = [c.id_ticket for c in compartidos]
+    #     # Ticket que se comparten
+    #     compartidos = self.compartir_repo.listar_tickets_compartidos(id_usuario)
+    #     ids_compartidos = [c.id_ticket for c in compartidos]
         
-        # ids de tickets
-        tickets_compartidos = self.ticket_repo.lista_ids_ticket(ids_compartidos)
+    #     # ids de tickets
+    #     tickets_compartidos = self.ticket_repo.lista_ids_ticket(ids_compartidos)
         
-        # Tickets propios
-        tickets_propios = self.ticket_repo.get_ticket_by_usuario(id_usuario)
+    #     # Tickets propios
+    #     tickets_propios = self.ticket_repo.get_ticket_by_usuario(id_usuario)
         
-        combinar = {t.id: t for t in tickets_propios}
-        for t in tickets_compartidos:
-            combinar.setdefault(t.id, t)
+    #     combinar = {t.id: t for t in tickets_propios}
+    #     for t in tickets_compartidos:
+    #         combinar.setdefault(t.id, t)
             
-        ordenado = sorted(combinar.values(), key=lambda t: t.id, reverse=True)
-        return [InformacionTicket.model_validate(t) for t in ordenado]
+    #     ordenado = sorted(combinar.values(), key=lambda t: t.id, reverse=True)
+    #     return [InformacionTicket.model_validate(t) for t in ordenado]
                
-    def ticket_by_id(self, id_ticket: int, id_usuario: int) -> InformacionTicket:
-        # validar
-        ticket =  self.ticket.get_ticket_by_id(id_ticket)
-        if not ticket:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No se encontro el ticket {id_ticket}")
-        # valida si es propietario o compartido
-        es_propietario = ticket.id_usuario == id_usuario
-        tiene_compartidos = self.compartir_repo.tiene_ticket_compartido(id_ticket, id_usuario)
-        if not es_propietario and not tiene_compartidos:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No se encontro el ticket {id_ticket}")
+    # def ticket_by_id(self, id_ticket: int, id_usuario: int) -> InformacionTicket:
+    #     # validar
+    #     ticket =  self.ticket.get_ticket_by_id(id_ticket)
+    #     if not ticket:
+    #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No se encontro el ticket {id_ticket}")
+    #     # valida si es propietario o compartido
+    #     es_propietario = ticket.id_usuario == id_usuario
+    #     tiene_compartidos = self.compartir_repo.tiene_ticket_compartido(id_ticket, id_usuario)
+    #     if not es_propietario and not tiene_compartidos:
+    #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No se encontro el ticket {id_ticket}")
         
-        return InformacionTicket.model_validate(ticket)   
+    #     return InformacionTicket.model_validate(ticket)   
     
-    def listar_tickets(self) -> list[Ticket]:
-        tickets = self.ticket.listar_tickets()
-        return [InformacionTicket.model_validate(t) for t in tickets] 
+    # def listar_tickets(self) -> list[Ticket]:
+    #     tickets = self.ticket.listar_tickets()
+    #     return [InformacionTicket.model_validate(t) for t in tickets] 
     
-    
-
     # def actualizar_ticket_activo(self, id_ticket: int, id_usuario: int, payload: ActualizarTickekActivo) -> InformacionTicket:
     #     ticket =  self.ticket_repo.get_ticket_by_id(id_ticket)
     #     if not ticket:
@@ -264,30 +263,30 @@ class TicketService:
     #     registros = self.ticket_repo.get_ticket_historial(id_ticket)
     #     return [InformacionTicket.model_validate(h) for h in registros]
     
-    def listar_ticket_paginado(
-        self,
-        estado = None,
-        prioridad = None,
-        activo = None,
-        titulo = None,
-        page: int = 1,
-        size: int = 10
-    ):
-        skip = (page - 1) * size
-        tickets, total = self.ticket_repo.listar_ticket_filtro(
-            estado, 
-            prioridad, 
-            activo, 
-            titulo, 
-            skip, 
-            size)
+    # def listar_ticket_paginado(
+    #     self,
+    #     estado = None,
+    #     prioridad = None,
+    #     activo = None,
+    #     titulo = None,
+    #     page: int = 1,
+    #     size: int = 10
+    # ):
+    #     skip = (page - 1) * size
+    #     tickets, total = self.ticket_repo.listar_ticket_filtro(
+    #         estado, 
+    #         prioridad, 
+    #         activo, 
+    #         titulo, 
+    #         skip, 
+    #         size)
         
-        return {
-            "items": [InformacionTicket.model_validate(t) for t in tickets],
-            "total": total,
-            "page": page,
-            "size": size,
-            "pages": ceil(total / size)
-        }
+    #     return {
+    #         "items": [InformacionTicket.model_validate(t) for t in tickets],
+    #         "total": total,
+    #         "page": page,
+    #         "size": size,
+    #         "pages": ceil(total / size)
+    #     }
             
         
