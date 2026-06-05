@@ -169,15 +169,54 @@ class TicketService:
         
         return InformacionTicket.model_validate(ticket_actualizado)
     
-    def compartir_ticket(self, id_ticket: int, payload: CompartirTicket) -> InformacionTicket:
+    def compartir_ticket(self, id_ticket: int, id_usuario: int, payload: CompartirTicket) -> InformacionTicket:
         ticket =  self.ticket_repo.get_ticket_by_id(id_ticket)
         if not ticket:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"ticket {id_ticket} no encontrado")
         
+        es_propietario = ticket.id_usuario_creador = id_usuario
+        if not es_propietario:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"No se tiene permiso para compartir el ticket {id_ticket}")
         
+        ticket = payload.id_usuario_compartido
         
+        ticket_actualizado = self.compartir_repo.compartir_ticket(ticket)
         
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "compartir ticket",
+            id_entidad = id_ticket, 
+            id_usuario = id_usuario,
+            campo_cambiado="*",
+            fecha_cambio=datetime.now(),
+            valor_anterior=None,
+            valor_nuevo="Ticket compartido",
+            accion="compartir"
+        ))
         
+        return InformacionTicket.model_validate(ticket_actualizado)
+        
+    def eliminar_compartir_ticket(self, id_ticket: int, id_usuario: int) -> InformacionTicket:
+        ticket =  self.ticket_repo.get_ticket_by_id(id_ticket)
+        if not ticket:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"ticket {id_ticket} no encontrado")
+        es_propietario = ticket.id_usuario_creador = id_usuario
+        if not es_propietario:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"No se tiene permiso para compartir el ticket {id_ticket}")
+        
+        ticket = self.compartir_repo.eliminar_compartir_ticket(id_ticket)
+        
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "compartir ticket",
+            id_entidad = id_ticket, 
+            id_usuario = id_usuario,
+            campo_cambiado="*",
+            fecha_cambio=datetime.now(),
+            valor_anterior="Ticket compartido",
+            valor_nuevo="Ticket no compartido",
+            accion="eliminar compartir"
+        ))
+        
+        return InformacionTicket.model_validate(ticket)
         
         
         

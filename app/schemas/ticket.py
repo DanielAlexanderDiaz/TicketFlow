@@ -28,6 +28,9 @@ class AsignarTicket(BaseModel):
 class CompartirTicket(BaseModel):
     id_usuario_compartido: int
     
+class EliminarCompartirTicket(BaseModel):
+    id_ticket: int
+    
 class TicketActivo(BaseModel):
     activo: bool
     
