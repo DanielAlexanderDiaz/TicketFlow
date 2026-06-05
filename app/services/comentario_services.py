@@ -6,7 +6,7 @@ from app.models.comentario import Comentario
 from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
-from app.schemas.comentario import InformacionComentario, ActualizarComentario, CrearComentario
+from app.schemas.comentario import EliminarComentario, InformacionComentario, ActualizarComentario, CrearComentario
 from app.repositories.comentario_repository import ComentarioRepositorio
 
 
@@ -102,3 +102,26 @@ class ComentarioService():
         
         return InformacionComentario.model_validate(comentario_actualizado)
             
+    def eliminar_comentario(self, id_usuario: int, payload: EliminarComentario) -> InformacionComentario:
+        comentario = self.comentario_repo.get_comentario_by_id(payload.id_comentario)
+        if comentario is None:    
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Comentario no encontrado")
+        
+        es_propietario = comentario.id_usuario == id_usuario
+        if es_propietario is None:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"No se tiene permiso para eliminar el comentario")
+        
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "comentario",
+            id_entidad = payload.id_comentario, 
+            id_usuario = id_usuario,
+            campo_cambiado="*",
+            fecha_cambio=datetime.now(),
+            valor_anterior="comentario eliminado",
+            valor_nuevo=None,
+            accion="eliminado"
+            ))
+        
+        comentario_eliminado = self.comentario_repo.eliminar_comentario(comentario)
+        
+        return InformacionComentario.model_validate(comentario_eliminado)
