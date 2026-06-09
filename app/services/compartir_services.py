@@ -5,7 +5,7 @@ from app.models.auditoria import Auditoria
 from app.models.compartir_ticket import TicketCompartir
 from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
-from app.schemas.compartir import InfoCompartir
+from app.schemas.compartir import InformacionCompartir
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 
@@ -19,7 +19,7 @@ class CompartirServicie:
         self.usuario_repo = UsuarioRepositorio(db)
         
         
-    def compartir_ticket(self, id_ticket: int, id_propietario: int, id_compartido: int) -> InfoCompartir:
+    def compartir_ticket(self, id_ticket: int, id_propietario: int, id_compartido: int) -> InformacionCompartir:
         ticket = self.ticket_repo.get_ticket_by_id(id_ticket)
         if not ticket:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontro el ticket")
@@ -51,7 +51,7 @@ class CompartirServicie:
             accion="compartir"
         ))
     
-        return InfoCompartir.model_validate(compartir)
+        return InformacionCompartir.model_validate(compartir)
     
     def eliminar_compartir(self, id_ticket: int, id_usuario: int) -> None:
         ticket = self.ticket_repo.get_ticket_by_id(id_ticket)

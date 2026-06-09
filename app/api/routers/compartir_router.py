@@ -1,12 +1,12 @@
 from fastapi import APIRouter, status
 from app.api.dependencias import DBSession, UsuarioActual
-from app.schemas.compartir import InfoCompartir
+from app.schemas.compartir import InformacionCompartir
 from app.services.compartir_services import CompartirServicie
 
 
 router = APIRouter(prefix="/compartir", tags=["compartir"])
 
-@router.post("/ticket/{id_ticket}", response_model=InfoCompartir, status_code=status.HTTP_201_CREATED)
+@router.post("/ticket/{id_ticket}", response_model=InformacionCompartir, status_code=status.HTTP_201_CREATED)
 def compartir_ticket(id_ticket: int, id_usuario_compartido: int, db: DBSession, usuario: UsuarioActual):
     return CompartirServicie(db).compartir_ticket(id_ticket, usuario.id, id_usuario_compartido)
     
