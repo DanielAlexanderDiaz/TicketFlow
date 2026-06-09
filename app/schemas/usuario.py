@@ -5,11 +5,11 @@ from app.core.seguridad import RolUsuario
 
 class Registro(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=6, max_length=72, description="Contraseña en texto plano")
+    password: str = Field(min_length=8, max_length=72, description="Contraseña en texto plano")
 
 class LoginRequest(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=6, max_length=72, description="Contraseña en texto plano")
+    password: str = Field(min_length=8, max_length=72, description="Contraseña en texto plano")
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -17,7 +17,6 @@ class TokenResponse(BaseModel):
     
 class ActualizarUsuario(BaseModel):
     nombre_usuario: Optional[str]
-    imagen_url: Optional[str]
     
 class EliminarUsuario(BaseModel):
     id: int
@@ -39,6 +38,6 @@ class InformacionUsuario(BaseModel):
     fecha_creacion: datetime
     imagen_url: str = ""
     activo: bool
-    permiso: list[str] = Field(default=list)
+    permiso: list[str] = Field(default_factory=list)
     model_config = ConfigDict(from_attributes = True)
     

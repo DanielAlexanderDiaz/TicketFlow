@@ -22,7 +22,7 @@ def ensure_media_dir_exists():
     os.makedirs(MEDIA_DIR, exist_ok=True)
     
 def save_uploaded_img(file: UploadFile) -> dict:
-    if file.content_type not in ["image/jpeg", "image/png"]:
+    if file.content_type not in ["image/jpeg", "image/jpg", "image/png"]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El archivo debe ser una imagen")
     
     ensure_media_dir_exists()

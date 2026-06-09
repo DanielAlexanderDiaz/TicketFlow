@@ -17,12 +17,8 @@ class UsuarioService:
         usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
         if not usuario:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
-        
-        if payload.imagen_url:
-            img_data = save_uploaded_img(payload.imagen_url)
-            usuario.imagen_url = img_data["url"]
-        
-        datos = payload.model_dump(exclude_unset=True, exclude_none=True, exclude={"imagen_url"})
+           
+        datos = payload.model_dump(exclude_unset=True, exclude_none=True)
         if not datos:
             return InformacionUsuario.model_validate(usuario)
         
@@ -46,6 +42,18 @@ class UsuarioService:
         usuario_actualizado = self.usuario_repo.actualizar_usuario(usuario)
         
         return InformacionUsuario.model_validate(usuario_actualizado)
+    
+    def actualizar_imagen(self, id_usuario: int, imagen_url: str) -> InformacionUsuario:
+        usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
+        if not usuario:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
+        
+        img_data = save_uploaded_img(imagen_url)
+        usuario.imagen_url = img_data["url"]
+        
+        self.usuario_repo.actualizar_usuario(usuario)
+        
+        return InformacionUsuario.model_validate(usuario)
         
     def eliminar_usuario(self, payload: EliminarUsuario) -> bool:
         usuario = self.usuario_repo.get_usuario_by_id(payload.id)
@@ -142,9 +150,6 @@ class UsuarioService:
         self.usuario_repo.actualizar_usuario(usuario)
         
         return InformacionUsuario.model_validate(usuario)
-    
-    
-    
     
     def listar_usuarios(self) -> list[InformacionUsuario]:
         lista = self.usuario_repo.listar_usuarios()

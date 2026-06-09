@@ -11,7 +11,7 @@ class UsuarioRepositorio:
 
     def get_usuario_by_email(self, email: EmailStr) -> Usuario | None:
         query = select(Usuario).where(Usuario.email == email)
-        return self.db.exec(query).first()       
+        return self.db.exec(query).first()
     
     def listar_usuarios(self) -> list[Usuario] | None:
         query = select(Usuario)

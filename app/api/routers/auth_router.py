@@ -9,18 +9,18 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=InformacionUsuario, status_code=status.HTTP_201_CREATED)
 def registrar(payload: Registro, db: DBSession):
-    servicio = AuthServices(UsuarioRepositorio(db))
+    servicio = AuthServices(db)
     return servicio.registrar(payload)
 
 @router.post("/login")
 def login(payload: LoginRequest, db: DBSession):
-    servicio = AuthServices(UsuarioRepositorio(db))
+    servicio = AuthServices(db)
     token_response = servicio.login(payload)
     return {"access_token": token_response.access_token, "token_type": "bearer"}
 
 @router.post("/token")
 def login(db: DBSession, form: OAuth2PasswordRequestForm = Depends()):
     payload = LoginRequest(email=form.username, password=form.password)
-    servicio = AuthServices(UsuarioRepositorio(db))
+    servicio = AuthServices(db)
     token_response = servicio.login(payload)
     return {"access_token": token_response.access_token, "token_type": "bearer"}
