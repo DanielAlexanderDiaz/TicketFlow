@@ -41,34 +41,34 @@ class RolUsuario(StrEnum):
     
 class Permiso(StrEnum):
     # Usuarios
-    PUEDE_ELIMINAR_USUARIO        = "puede_eliminar_usuario"
-    PUEDE_ACTUALIZAR_ROL          = "puede_actualizar_rol"
-    PUEDE_ACTUALIZAR_PERMISOS     = "puede_actualizar_permisos"
+    USUARIO_PUEDE_ELIMINAR = "puede_eliminar_usuario"
+    USUARIO_PUEDE_ACTUALIZAR_ROL = "puede_actualizar_rol"
+    USUARIO_PUEDE_ACTUALIZAR_PERMISOS = "puede_actualizar_permisos"
  
     # Tickets
-    PUEDE_CREAR_TICKET            = "puede_crear_ticket"
-    PUEDE_ACTUALIZAR_TICKET       = "puede_actualizar_ticket"
-    PUEDE_ELIMINAR_TICKET         = "puede_eliminar_ticket"
-    PUEDE_COMPARTIR_TICKET        = "puede_compartir_ticket"
-    PUEDE_DESCOMPARTIR_TICKET     = "puede_descompartir_ticket"
-    PUEDE_ASIGNAR_TICKET          = "puede_asignar_ticket"
-    PUEDE_CAMBIAR_ESTADO_TICKET   = "puede_cambiar_estado_ticket"
+    TICKET_PUEDE_CREAR = "puede_crear_ticket"
+    TICKET_PUEDE_ACTUALIZAR = "puede_actualizar_ticket"
+    TICKET_PUEDE_ELIMINAR = "puede_eliminar_ticket"
+    TICKET_PUEDE_COMPARTIR = "puede_compartir_ticket"
+    TICKET_PUEDE_DESCOMPARTIR = "puede_descompartir_ticket"
+    TICKET_PUEDE_ASIGNAR = "puede_asignar_ticket"
+    TICKET_PUEDE_CAMBIAR_ESTADO = "puede_cambiar_estado_ticket"
  
     # Comentarios
-    PUEDE_CREAR_COMENTARIO        = "puede_crear_comentario"
-    PUEDE_ACTUALIZAR_COMENTARIO   = "puede_actualizar_comentario"
-    PUEDE_ELIMINAR_COMENTARIO     = "puede_eliminar_comentario"
+    COMENTARIO_PUEDE_CREAR = "puede_crear_comentario"
+    COMENTARIO_PUEDE_ACTUALIZAR = "puede_actualizar_comentario"
+    COMENTARIO_PUEDE_ELIMINAR = "puede_eliminar_comentario"
  
 PERMISOS_POR_ROL: dict[RolUsuario, set[Permiso]] = {
     RolUsuario.USER: {
-        Permiso.PUEDE_CREAR_TICKET,
-        Permiso.PUEDE_ACTUALIZAR_TICKET,
-        Permiso.PUEDE_COMPARTIR_TICKET,
-        Permiso.PUEDE_DESCOMPARTIR_TICKET,
-        Permiso.PUEDE_CAMBIAR_ESTADO_TICKET,
-        Permiso.PUEDE_CREAR_COMENTARIO,
-        Permiso.PUEDE_ACTUALIZAR_COMENTARIO,
-        Permiso.PUEDE_ELIMINAR_COMENTARIO,
+        Permiso.TICKET_PUEDE_CREAR,
+        Permiso.TICKET_PUEDE_ACTUALIZAR,
+        Permiso.TICKET_PUEDE_COMPARTIR,
+        Permiso.TICKET_PUEDE_DESCOMPARTIR,
+        Permiso.TICKET_PUEDE_CAMBIAR_ESTADO,
+        Permiso.COMENTARIO_PUEDE_CREAR,
+        Permiso.COMENTARIO_PUEDE_ACTUALIZAR,
+        Permiso.COMENTARIO_PUEDE_ELIMINAR,
     },
     RolUsuario.ADMIN: set(),  # Sin permisos por defecto (RF regla general de autorización)
     RolUsuario.SUPERADMIN: {p for p in Permiso},
