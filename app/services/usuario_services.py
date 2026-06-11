@@ -3,7 +3,7 @@ from fastapi import HTTPException, Query, status
 from sqlmodel import Session
 from app.models.auditoria import Auditoria
 from app.repositories.auditoria_repository import AuditoriaRepositorio
-from app.schemas.usuario import ActualizarPermisos, ActualizarRol, ActualizarUsuario, EliminarUsuario, InformacionUsuario, UsuarioActivo
+from app.schemas.usuario import ActualizarPermisos, ActualizarRol, ActualizarUsuario, InformacionUsuario, UsuarioActivo
 from app.repositories.usuario_repository import UsuarioRepositorio
 from app.utils.uploads_file import save_uploaded_img
 
@@ -51,19 +51,33 @@ class UsuarioService:
         img_data = save_uploaded_img(imagen_url)
         usuario.imagen_url = img_data["url"]
         
+        valor_anterior = usuario.imagen_url
+        valor_nuevo = img_data["url"]
+        
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "usuario",
+            id_entidad = id_usuario, 
+            id_usuario = id_usuario,
+            campo_cambiado="imagen_url",
+            fecha_cambio=datetime.now(),
+            valor_anterior=str(valor_anterior),
+            valor_nuevo=str(valor_nuevo),
+            accion="actualizado"
+            ))
+        
         self.usuario_repo.actualizar_usuario(usuario)
         
         return InformacionUsuario.model_validate(usuario)
         
-    def eliminar_usuario(self, payload: EliminarUsuario) -> bool:
-        usuario = self.usuario_repo.get_usuario_by_id(payload.id)
+    def eliminar_usuario(self, id_usuario: int) -> None:
+        usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
         if not usuario:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
         
         self.auditoria_repo.crear_audtoria(Auditoria(
             entidad = "usuario",
-            id_entidad = payload.id,
-            id_usuario = payload.id,
+            id_entidad = id_usuario,
+            id_usuario = id_usuario,
             campo_cambiado="*",
             fecha_cambio=datetime.now(),
             valor_anterior="*",
@@ -71,7 +85,7 @@ class UsuarioService:
             accion="eliminado"
         ))
         
-        return self.usuario_repo.eliminar_usuario(usuario)
+        self.usuario_repo.eliminar_usuario(usuario)
     
     def actualizar_rol(self, id_usuario: int, payload: ActualizarRol) -> InformacionUsuario:
         # valida
@@ -109,7 +123,9 @@ class UsuarioService:
         if not usuario:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
         
-        usuario.permisos = payload.permisos
+        valor_anterior = list(usuario.permiso)
+        
+        usuario.permiso = payload.permiso
         
         self.auditoria_repo.crear_audtoria(Auditoria(
             entidad = "usuario",
@@ -117,8 +133,8 @@ class UsuarioService:
             id_usuario = id_usuario,
             campo_cambiado="permisos",
             fecha_cambio=datetime.now(),
-            valor_anterior=str(usuario.permisos),
-            valor_nuevo=str(payload.permisos),
+            valor_anterior=str(valor_anterior),
+            valor_nuevo=str(payload.permiso),
             accion="actualizado"
             ))
         
@@ -133,6 +149,7 @@ class UsuarioService:
         
         valor_anterior = usuario.activo
         nuevo_valor = payload.activo
+        
         usuario.activo = payload.activo
         
         if str(valor_anterior) != str(nuevo_valor):

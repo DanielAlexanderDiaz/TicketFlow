@@ -1,5 +1,5 @@
 from pydantic import EmailStr
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 from app.models.usuario import Usuario
 
 class UsuarioRepositorio:
@@ -28,7 +28,7 @@ class UsuarioRepositorio:
         self.db.refresh(usuario)
         return usuario
     
-    def eliminar_usuario(self, usuario: Usuario) -> bool:
+    def eliminar_usuario(self, usuario: Usuario) -> None:
+        self.db.exec(delete(Usuario).where(Usuario.id == usuario.id))
         self.db.delete(usuario)
         self.db.commit()
-        return True

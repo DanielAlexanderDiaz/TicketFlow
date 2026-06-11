@@ -18,9 +18,6 @@ class TokenResponse(BaseModel):
 class ActualizarUsuario(BaseModel):
     nombre_usuario: Optional[str]
     
-class EliminarUsuario(BaseModel):
-    id: int
-
 class ActualizarRol(BaseModel):
     rol: RolUsuario
     
