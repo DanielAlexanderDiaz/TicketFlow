@@ -49,8 +49,8 @@ class VerificarPermisos:
         self.permisos_necesarios = permisos_necesarios
         
     def __call__(self, usuario_actual: UsuarioActual):
-        if usuario_actual.permiso_extra:
-            permiso_valido = {Permiso(p) for p in usuario_actual.permiso_extra}
+        if usuario_actual.permiso:
+            permiso_valido = {Permiso(p) for p in usuario_actual.permiso}
         else:    
             permiso_valido = PERMISOS_POR_ROL.get(usuario_actual.rol, set())
         
@@ -68,3 +68,8 @@ puede_gestionar_ticket = VerificarPermisos([Permiso.TICKET_PUEDE_CREAR,
                                             Permiso.TICKET_PUEDE_DESCOMPARTIR, 
                                             Permiso.TICKET_PUEDE_ASIGNAR, 
                                             Permiso.TICKET_PUEDE_CAMBIAR_ESTADO])
+
+
+puede_gestionar_usuarios = VerificarPermisos([Permiso.USUARIO_PUEDE_ELIMINAR, 
+                                              Permiso.USUARIO_PUEDE_ACTUALIZAR_ROL, 
+                                              Permiso.USUARIO_PUEDE_ACTUALIZAR_PERMISOS])
