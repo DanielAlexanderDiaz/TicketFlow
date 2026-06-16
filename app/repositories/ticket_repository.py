@@ -11,12 +11,10 @@ class TicketRepositorio:
         return self.db.get(Ticket, id_ticket)
     
     def get_ticket_by_usuario(self, id_usuario: int) -> list[Ticket]:
-        query = select(Ticket).where(Ticket.id_usuario == id_usuario)
-        return self.db.exec(query).all()
+        return self.db.exec(select(Ticket).where(Ticket.id_usuario_creador == id_usuario)).all()
     
     def listar_todos_tickets(self) -> list[Ticket]:
-        query = select(Ticket)
-        return self.db.exec(query).all()
+        return self.db.exec(select(Ticket)).all()
     
     def crear_ticket(self, ticket: Ticket) -> Ticket:
         self.db.add(ticket)
@@ -30,15 +28,13 @@ class TicketRepositorio:
         return ticket
     
     def eliminar_ticket(self, id_ticket: int) -> None:
-        query = delete(Ticket).where(Ticket.id == id_ticket)
-        self.db.exec(query)
+        self.db.exec(delete(Ticket).where(Ticket.id == id_ticket))
         self.db.commit()
     
     def lista_ids_ticket(self, ids: list[int]) -> list[Ticket]:
         if not ids:
             return []
-        query = select(Ticket).where(Ticket.id.in_(ids))
-        return self.db.exec(query).all()
+        return self.db.exec(select(Ticket).where(Ticket.id.in_(ids))).all()
     
     def listar_ticket_filtro(
         self,

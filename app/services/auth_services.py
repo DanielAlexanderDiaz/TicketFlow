@@ -86,8 +86,8 @@ class AuthServices:
         
         self.auditoria_repo.crear_audtoria(Auditoria(
             entidad="Usuario",
-            id_entidad=payload.get("sub"),
-            id_usuario=payload.get("sub"),
+            id_entidad=int(payload.get("sub")),
+            id_usuario=int(payload.get("sub")),
             campo_cambiado=None,
             fecha_cambio=datetime.now(),
             valor_anterior=None,
