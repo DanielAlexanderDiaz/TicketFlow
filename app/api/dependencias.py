@@ -83,3 +83,4 @@ puede_gestionar_ticket = VerificarPermisos([Permiso.TICKET_PUEDE_CREAR,
 puede_gestionar_usuarios = VerificarPermisos([Permiso.USUARIO_PUEDE_ELIMINAR, 
                                               Permiso.USUARIO_PUEDE_ACTUALIZAR_ROL, 
                                               Permiso.USUARIO_PUEDE_ACTUALIZAR_PERMISOS])
+

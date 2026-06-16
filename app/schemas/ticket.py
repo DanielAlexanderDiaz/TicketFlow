@@ -12,9 +12,7 @@ class CrearTicket(BaseModel):
 class ActualizarTicket(BaseModel):
     titulo: Optional[str] = None
     descripcion: Optional[str] = None
-    estado: Optional[EstadoTicket] = None
     prioridad: Optional[PrioridadTicket] = None
-    imagen_url: Optional[UploadFile] = None
     
 class EliminarTicket(BaseModel):
     id_ticket: int

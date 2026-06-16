@@ -13,7 +13,7 @@ class CompartirRepository:
         return True
         
     def usuario_tiene_ticket_compartido(self, id_ticket: int, id_usuario_compartido: int) -> bool:
-        query = select(TicketCompartir).where(TicketCompartir.id_ticket == id_ticket and (TicketCompartir.id_usuario_destino == id_usuario_compartido))  
+        query = select(TicketCompartir).where(TicketCompartir.id_ticket == id_ticket).where(TicketCompartir.id_usuario_destino == id_usuario_compartido)
         query = self.db.exec(query).first()
         
         return True

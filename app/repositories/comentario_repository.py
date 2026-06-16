@@ -29,7 +29,6 @@ class ComentarioRepositorio:
         return comentario
     
     def eliminar_comentario(self, comentario: Comentario) -> None:
-        query = select(Comentario).where(Comentario.id == comentario.id)
-        comentario = self.db.exec(query).one()
-        self.db.delete(comentario)
+        resultado = self.db.exec(select(Comentario).where(Comentario.id == comentario.id)).one()
+        self.db.delete(resultado)
         self.db.commit()

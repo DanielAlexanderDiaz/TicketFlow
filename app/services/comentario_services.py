@@ -102,7 +102,7 @@ class ComentarioService():
         
         return InformacionComentario.model_validate(comentario_actualizado)
             
-    def eliminar_comentario(self, id_usuario: int, payload: EliminarComentario) -> InformacionComentario:
+    def eliminar_comentario(self, id_usuario: int, payload: EliminarComentario) -> None:
         comentario = self.comentario_repo.get_comentario_by_id(payload.id_comentario)
         if comentario is None:    
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Comentario no encontrado")
@@ -122,6 +122,4 @@ class ComentarioService():
             accion="eliminado"
             ))
         
-        comentario_eliminado = self.comentario_repo.eliminar_comentario(comentario)
-        
-        return InformacionComentario.model_validate(comentario_eliminado)
+        self.comentario_repo.eliminar_comentario(comentario)

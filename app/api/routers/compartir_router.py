@@ -5,12 +5,3 @@ from app.services.compartir_services import CompartirServicie
 
 
 router = APIRouter(prefix="/compartir", tags=["compartir"])
-
-@router.post("/ticket/{id_ticket}", response_model=InformacionCompartir, status_code=status.HTTP_201_CREATED)
-def compartir_ticket(id_ticket: int, id_usuario_compartido: int, db: DBSession, usuario: UsuarioActual):
-    return CompartirServicie(db).compartir_ticket(id_ticket, usuario.id, id_usuario_compartido)
-    
-@router.delete("/ticket/{id_ticket}", status_code=status.HTTP_204_NO_CONTENT)
-def quitar_compartir_ticket(id_ticket: int, db: DBSession, usuario: UsuarioActual):
-    CompartirServicie(db).eliminar_compartir(id_ticket, usuario.id)
-    return None
