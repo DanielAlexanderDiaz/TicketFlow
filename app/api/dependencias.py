@@ -6,6 +6,7 @@ from sqlmodel import Session
 from app.core.db import get_session
 from app.core.seguridad import PERMISOS_POR_ROL, Permiso, RolUsuario, decodificar_token
 from app.models.usuario import Usuario
+from app.repositories.token_blacklist_repository import TokenBlackListRepository
 from app.repositories.usuario_repository import UsuarioRepositorio
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
@@ -21,9 +22,18 @@ def get_usuario_actual(token: Annotated[str, Depends(oauth2_scheme)], db: DBSess
     try:
         payload = decodificar_token(token)
         id_usuario = int(payload.get("sub"))
+        jti = payload.get("jti")
+        
         if id_usuario is None:
             raise ValueError("Token inválido: falta sub")
+        
+        if jti is None:
+            raise ValueError("Token inválido: falta jti")
     except (jwt.PyJWTError, ValueError, TypeError, Exception) as e:
+        raise excepcion_credencial
+    
+    black_list_repo = TokenBlackListRepository(db)
+    if black_list_repo.esta_en_blacklist(jti):
         raise excepcion_credencial
     
     repo = UsuarioRepositorio(db)

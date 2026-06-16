@@ -33,6 +33,14 @@ def decodificar_token(token: str) -> dict:
         configuracion.JWT_SECRET_KEY,
         algorithms=[configuracion.JWT_ALGORITMO],
     )
+    
+def decodificar_token_sin_verificar_exp(token: str) -> dict:
+    return jwt.decode(
+        token,
+        configuracion.JWT_SECRET_KEY,
+        algorithms=[configuracion.JWT_ALGORITMO],
+        options={"verify_exp": False}
+    )
 
 class RolUsuario(StrEnum):
     USER = "user"
