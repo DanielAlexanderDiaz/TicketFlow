@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from app.api.dependencias import DBSession, UsuarioActual, requiere_superuser
+from app.api.dependencias import DBSession, UsuarioActual, requiere_superadmin
 from app.models import Usuario
 from app.schemas.usuario import ActualizarPermisos, ActualizarRol, ActualizarUsuario, InformacionUsuario, UsuarioActivo
 from app.services.usuario_services import UsuarioService
@@ -19,7 +19,7 @@ def actualizar_foto(db: DBSession, usuario: UsuarioActual, img: Optional[UploadF
 
 # Eliminar usuario
 @router.delete("/eliminar/{id_usuario}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_usuario(db: DBSession, id_usuario: int, usuario: UsuarioActual, _ : Usuario = Depends(requiere_superuser)):
+def eliminar_usuario(db: DBSession, id_usuario: int, usuario: UsuarioActual, _ : Usuario = Depends(requiere_superadmin)):
     if id_usuario == usuario.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No puedes eliminar tu propio usuario')
     UsuarioService(db).eliminar_usuario(id_usuario)
@@ -27,15 +27,15 @@ def eliminar_usuario(db: DBSession, id_usuario: int, usuario: UsuarioActual, _ :
 
 # Actualizar rol
 @router.patch("/rol/{id_usuario}", response_model=InformacionUsuario)
-def actualizar_rol(db: DBSession, payload: ActualizarRol, id_usuario: int, usuario: UsuarioActual, _ : Usuario = Depends(requiere_superuser)):
+def actualizar_rol(db: DBSession, payload: ActualizarRol, id_usuario: int, usuario: UsuarioActual, _ : Usuario = Depends(requiere_superadmin)):
     return UsuarioService(db).actualizar_rol(id_usuario, payload)
 
 # Actualizar permisos
 @router.patch("/permisos/{id_usuario}", response_model=InformacionUsuario)
-def actualizar_permisos(db: DBSession, payload: ActualizarPermisos, id_usuario: int, usuario: UsuarioActual, _ : Usuario = Depends(requiere_superuser)):
+def actualizar_permisos(db: DBSession, payload: ActualizarPermisos, id_usuario: int, usuario: UsuarioActual, _ : Usuario = Depends(requiere_superadmin)):
     return UsuarioService(db).actualizar_permisos(id_usuario, payload)
 
 # Activar o desactivar usuario
 @router.patch("/activo/{id_usuario}", response_model=InformacionUsuario)
-def usuario_activo(db: DBSession, payload: UsuarioActivo, id_usuario: int, usuario: UsuarioActual, _ : Usuario = Depends(requiere_superuser)):
+def usuario_activo(db: DBSession, payload: UsuarioActivo, id_usuario: int, usuario: UsuarioActual, _ : Usuario = Depends(requiere_superadmin)):
     return UsuarioService(db).usuario_activo(id_usuario, payload)
