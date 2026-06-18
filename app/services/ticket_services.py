@@ -6,7 +6,7 @@ from app.models import ticket
 from app.models.auditoria import Auditoria
 from app.models.ticket import TRANSICIONES_PERMITIDAS, EstadoTicket, Ticket
 from app.repositories.auditoria_repository import AuditoriaRepositorio
-from app.schemas.ticket import ActualizarTicket, CrearTicket, InformacionTicket
+from app.schemas.ticket import ActualizarTicket, CrearTicket, EliminarTicket, InformacionTicket
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
@@ -25,6 +25,7 @@ class TicketService:
         if not usuario:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
         
+        # ABAC - Control de acceso
         if usuario.rol == RolUsuario.USER:
             es_propietario = id_usuario
         else:
@@ -36,6 +37,17 @@ class TicketService:
         nuevo_ticket = Ticket(titulo=titulo, descripcion=descripcion, id_usuario_creador=id_usuario, asignado=es_propietario)
         
         ticket = self.ticket_repo.crear_ticket(nuevo_ticket)
+        
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "ticket",
+            id_entidad = ticket.id,
+            id_usuario = id_usuario,
+            campo_cambiado="*",
+            fecha_cambio=datetime.now(),
+            valor_anterior="*",
+            valor_nuevo="*",
+            accion="creado"
+        ))
         
         return InformacionTicket.model_validate(ticket)
     
@@ -76,3 +88,28 @@ class TicketService:
         ticket_actualizado = self.ticket_repo.actualizar_ticket(ticket)
         
         return InformacionTicket.model_validate(ticket_actualizado)
+    
+    def eliminar_ticket(self, id_usuario: int, payload: EliminarTicket) -> None:
+        ticket = self.ticket_repo.get_ticket_by_id(payload.id_ticket)
+        if not ticket:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Ticket no encontrado')
+        
+        # ABAC - Control de acceso
+        es_propietario = ticket.id_usuario_creador == id_usuario
+        es_superadmin = self.usuario_repo.get_usuario_by_id(id_usuario).rol == RolUsuario.SUPERADMIN
+        
+        if not (es_propietario or es_superadmin):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='No tienes permiso para eliminar este ticket')
+        
+        self.ticket_repo.eliminar_ticket(payload.id_ticket)
+        
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "ticket",
+            id_entidad = ticket.id,
+            id_usuario = id_usuario,
+            campo_cambiado="*",
+            fecha_cambio=datetime.now(),
+            valor_anterior="*",
+            valor_nuevo="*",
+            accion="Eliminar"
+        ))

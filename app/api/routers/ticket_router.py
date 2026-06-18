@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status, File, UploadFile
-from app.api.dependencias import DBSession, UsuarioActual, ticket_crear, ticket_actualizar
+from app.api.dependencias import DBSession, UsuarioActual, ticket_crear, ticket_actualizar, ticket_eliminar
 from app.models.ticket import EstadoTicket, PrioridadTicket
 from app.schemas.ticket import CrearTicket, ActualizarTicket, EliminarTicket, CambioEstadoTicket, AsignarTicket, CompartirTicket, EliminarCompartirTicket, TicketActivo, InformacionTicket, PaginacionTicket
 from app.services.ticket_services import TicketService
@@ -16,3 +16,8 @@ def crear_ticket(db: DBSession, id_usuario: UsuarioActual, payload: CrearTicket)
 def actualizar_ticket(db: DBSession, id_ticket: int, id_usuario: UsuarioActual, payload: ActualizarTicket):
     servicio = TicketService(db).actualizar_ticket(id_ticket, id_usuario.id, payload)
     return servicio
+
+@router.delete('/eliminar/{id_ticket}', status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(ticket_eliminar)])
+def eliminar_ticket(db: DBSession, id_usuario: UsuarioActual, payload: EliminarTicket):
+    TicketService(db).eliminar_ticket(id_usuario.id, payload)
+    return
