@@ -2,11 +2,12 @@ from datetime import datetime
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.core.seguridad import RolUsuario
+from app.core.ticket_fsm import TicketFSM
 from app.models import ticket
 from app.models.auditoria import Auditoria
 from app.models.ticket import TRANSICIONES_PERMITIDAS, EstadoTicket, Ticket
 from app.repositories.auditoria_repository import AuditoriaRepositorio
-from app.schemas.ticket import ActualizarTicket, CrearTicket, EliminarTicket, InformacionTicket
+from app.schemas.ticket import ActualizarTicket, CambioEstadoTicket, CrearTicket, EliminarTicket, InformacionTicket
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
@@ -113,3 +114,43 @@ class TicketService:
             valor_nuevo="*",
             accion="Eliminar"
         ))
+        
+    def cambio_estado_ticket(self, id_usuario: int, id_ticket: int, payload: CambioEstadoTicket) -> InformacionTicket:
+        ticket = self.ticket_repo.get_ticket_by_id(id_ticket)
+        if not ticket:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Ticket no encontrado')
+        
+        # ABAC - Control de acceso
+        es_propietario = ticket.id_usuario_creador == id_usuario
+        es_asignado = ticket.asignado == id_usuario
+        es_compartido = self.compartir_repo.usuario_tiene_ticket_compartido(id_ticket, id_usuario)
+        es_superadmin = self.usuario_repo.get_usuario_by_id(id_usuario).rol == RolUsuario.SUPERADMIN
+        
+        if not (es_propietario or es_asignado or es_compartido or es_superadmin):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='No tienes permiso para actualizar este ticket')
+        
+        # FSM - Control de transiciones
+        fsm = TicketFSM(ticket.estado)
+        try:
+            nuevo_estado = fsm.transicionar(payload.estado)
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        
+        valor_anterior = ticket.estado
+        ticket.estado = nuevo_estado
+        ticket.fecha_actualizacion = datetime.now()
+        
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "ticket",
+            id_entidad = id_ticket, 
+            id_usuario = id_usuario,
+            campo_cambiado="estado",
+            fecha_cambio=datetime.now(),
+            valor_anterior=str(valor_anterior),
+            valor_nuevo=str(nuevo_estado),
+            accion="actualizado"
+        ))
+        
+        ticket_actualizado = self.ticket_repo.actualizar_ticket(ticket)
+        
+        return InformacionTicket.model_validate(ticket_actualizado)
