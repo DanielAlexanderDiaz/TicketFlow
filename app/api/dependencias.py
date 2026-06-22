@@ -80,11 +80,8 @@ ticket_eliminar = VerificarPermisos([Permiso.TICKET_PUEDE_ELIMINAR])
 ticket_compartir = VerificarPermisos([Permiso.TICKET_PUEDE_COMPARTIR])
 ticket_descompartir = VerificarPermisos([Permiso.TICKET_PUEDE_DESCOMPARTIR])
 ticket_asignar = VerificarPermisos([Permiso.TICKET_PUEDE_ASIGNAR])
+ticket_desasignar = VerificarPermisos([Permiso.TICKET_PUEDE_DESASIGNAR])
 ticket_cambiar_estado = VerificarPermisos([Permiso.TICKET_PUEDE_CAMBIAR_ESTADO])
-
-
-
-
 
 puede_gestionar_usuarios = VerificarPermisos([Permiso.USUARIO_PUEDE_ELIMINAR, 
                                               Permiso.USUARIO_PUEDE_ACTUALIZAR_ROL, 

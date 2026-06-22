@@ -60,6 +60,7 @@ class Permiso(StrEnum):
     TICKET_PUEDE_COMPARTIR = "puede_compartir_ticket"
     TICKET_PUEDE_DESCOMPARTIR = "puede_descompartir_ticket"
     TICKET_PUEDE_ASIGNAR = "puede_asignar_ticket"
+    TICKET_PUEDE_DESASIGNAR = "puede_desasignar_ticket"
     TICKET_PUEDE_CAMBIAR_ESTADO = "puede_cambiar_estado_ticket"
  
     # Comentarios

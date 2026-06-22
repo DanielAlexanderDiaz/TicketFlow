@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status, File, UploadFile
-from app.api.dependencias import DBSession, UsuarioActual, ticket_crear, ticket_actualizar, ticket_eliminar, ticket_cambiar_estado, ticket_asignar
+from app.api.dependencias import DBSession, UsuarioActual, ticket_crear, ticket_actualizar, ticket_eliminar, ticket_cambiar_estado, ticket_asignar, ticket_desasignar
 from app.models.ticket import EstadoTicket, PrioridadTicket
 from app.schemas.ticket import CrearTicket, ActualizarTicket, EliminarTicket, CambioEstadoTicket, AsignarTicket, CompartirTicket, EliminarCompartirTicket, TicketActivo, InformacionTicket, PaginacionTicket
 from app.services.ticket_services import TicketService
@@ -30,4 +30,9 @@ def cambio_estado_ticket(db: DBSession, id_ticket: int, id_usuario: UsuarioActua
 @router.patch('/asignar/{id_ticket}', response_model=InformacionTicket, dependencies=[Depends(ticket_asignar)])
 def asignar_ticket(db: DBSession, id_ticket: int, id_usuario: UsuarioActual, payload: AsignarTicket):
     servicio = TicketService(db).asignar_ticket(id_ticket, id_usuario.id, payload)
+    return servicio
+
+@router.patch('/quitar_asignar/{id_ticket}', response_model=InformacionTicket, dependencies=[Depends(ticket_desasignar)])  
+def quitar_asignar_ticket(db: DBSession, id_ticket: int, id_usuario: UsuarioActual):
+    servicio = TicketService(db).quitar_asignar_ticket(id_ticket, id_usuario.id)
     return servicio
