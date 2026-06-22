@@ -21,7 +21,7 @@ class CambioEstadoTicket(BaseModel):
     estado: EstadoTicket
 
 class AsignarTicket(BaseModel):
-    id_usuario_creador: int
+    id_usuario_asignado: int
     
 class CompartirTicket(BaseModel):
     id_ticket: int

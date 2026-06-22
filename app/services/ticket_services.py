@@ -7,7 +7,7 @@ from app.models import ticket
 from app.models.auditoria import Auditoria
 from app.models.ticket import TRANSICIONES_PERMITIDAS, EstadoTicket, Ticket
 from app.repositories.auditoria_repository import AuditoriaRepositorio
-from app.schemas.ticket import ActualizarTicket, CambioEstadoTicket, CrearTicket, EliminarTicket, InformacionTicket
+from app.schemas.ticket import ActualizarTicket, AsignarTicket, CambioEstadoTicket, CrearTicket, EliminarTicket, InformacionTicket
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
@@ -148,6 +148,31 @@ class TicketService:
             fecha_cambio=datetime.now(),
             valor_anterior=str(valor_anterior),
             valor_nuevo=str(nuevo_estado),
+            accion="actualizado"
+        ))
+        
+        ticket_actualizado = self.ticket_repo.actualizar_ticket(ticket)
+        
+        return InformacionTicket.model_validate(ticket_actualizado)
+    
+    def asignar_ticket(self, id_ticket: int, id_usuario: int, payload: AsignarTicket) -> InformacionTicket:
+        ticket = self.ticket_repo.get_ticket_by_id(id_ticket)
+        if not ticket:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Ticket no encontrado')
+              
+        ticket.asignado = payload.id_usuario_asignado
+        
+        valor_anterior = ticket.asignado
+        valor_nuevo = payload.id_usuario_asignado
+        
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "ticket",
+            id_entidad = id_ticket, 
+            id_usuario = id_usuario,
+            campo_cambiado="asignado",
+            fecha_cambio=datetime.now(),
+            valor_anterior=str(valor_anterior),
+            valor_nuevo=str(valor_nuevo),
             accion="actualizado"
         ))
         
