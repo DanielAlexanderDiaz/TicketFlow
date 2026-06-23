@@ -1,4 +1,4 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 from app.models.comentario import Comentario
 
 class ComentarioRepositorio:
@@ -23,12 +23,14 @@ class ComentarioRepositorio:
         return comentario
     
     def actualizar_comentario(self, comentario: Comentario) -> Comentario:
-        # self.db.add(comentario)
         self.db.commit()
         self.db.refresh(comentario)
         return comentario
     
-    def eliminar_comentario(self, comentario: Comentario) -> None:
-        resultado = self.db.exec(select(Comentario).where(Comentario.id == comentario.id)).one()
-        self.db.delete(resultado)
+    def eliminar_comentario(self, id_comentario: int) -> None:
+        self.db.exec(delete(Comentario).where(Comentario.id == id_comentario))
         self.db.commit()
+
+    def ultimo_comentario(self, id_ticket: int) -> bool:
+        query = select(Comentario).where(Comentario.id_ticket == id_ticket).order_by(Comentario.id.desc()).limit(1)
+        return self.db.exec(query).one()

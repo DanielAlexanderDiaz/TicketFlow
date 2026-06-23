@@ -6,7 +6,6 @@ class CrearComentario(BaseModel):
     comentario: str
     
 class ActualizarComentario(BaseModel):
-    id_ticket: int
     comentario: str
     
 class EliminarComentario(BaseModel):
