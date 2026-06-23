@@ -39,11 +39,3 @@ class InformacionTicket(BaseModel):
     activo: bool
     imagen_url: str = ""
     model_config = ConfigDict(from_attributes = True)
-    
-class PaginacionTicket(BaseModel):
-    items: list[InformacionTicket]
-    total: int
-    page: int
-    size: int
-    pages: int
-    

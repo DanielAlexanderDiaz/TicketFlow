@@ -1,6 +1,5 @@
 from datetime import datetime
 from sqlmodel import Session, select
-
 from app.models.token_black_list import TokenBlackList
 
 

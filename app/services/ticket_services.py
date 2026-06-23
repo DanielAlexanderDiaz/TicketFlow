@@ -3,9 +3,8 @@ from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.core.seguridad import RolUsuario
 from app.core.ticket_fsm import TicketFSM
-from app.models import ticket
 from app.models.auditoria import Auditoria
-from app.models.ticket import TRANSICIONES_PERMITIDAS, EstadoTicket, Ticket
+from app.models.ticket import Ticket
 from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.repositories.comentario_repository import ComentarioRepositorio
 from app.schemas.ticket import ActualizarTicket, AsignarTicket, CambioEstadoTicket, CrearTicket, EliminarTicket, InformacionTicket
@@ -217,7 +216,7 @@ class TicketService:
         if not ticket:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Ticket no encontrado')
         
-        if not ticket.asignado:
+        if ticket.asignado is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El ticket no está asignado')
         
         valor_anterior = ticket.asignado

@@ -6,7 +6,7 @@ from app.services.compartir_services import CompartirServicie
 
 router = APIRouter(prefix="/compartir", tags=["compartir"])
 
-@router.post('/compartir', response_model=InformacionCompartir, status_code=status.HTTP_201_CREATED, dependencies=[Depends(ticket_compartir)])
+@router.post('/compartir/{id_ticket}', response_model=InformacionCompartir, status_code=status.HTTP_201_CREATED, dependencies=[Depends(ticket_compartir)])
 def compartir_ticket(db: DBSession, id_usuario: UsuarioActual, id_ticket: int, payload: CompartirTicket) -> InformacionCompartir:
     servicio = CompartirServicie(db).compartir_ticket(id_ticket, id_usuario.id, payload)
     return servicio

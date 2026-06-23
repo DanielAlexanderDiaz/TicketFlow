@@ -14,8 +14,8 @@ class CompartirRepository:
         resultado = self.db.exec(select(TicketCompartir).where(TicketCompartir.id_ticket == id_ticket)).first()
         return resultado is not None
         
-    def usuario_tiene_ticket_compartido(self, id_ticket: int, id_usuario_compartido: int) -> bool:
-        resultado = self.db.exec(select(TicketCompartir).where(TicketCompartir.id_ticket == id_ticket).where(TicketCompartir.id_usuario_destino == id_usuario_compartido)).first()
+    def usuario_tiene_ticket_compartido(self, id_ticket: int, id_usuario_destino: int) -> bool:
+        resultado = self.db.exec(select(TicketCompartir).where(TicketCompartir.id_ticket == id_ticket).where(TicketCompartir.id_usuario_destino == id_usuario_destino)).first()
         return resultado is not None
         
     def compartir_ticket(self, compartir: TicketCompartir) -> TicketCompartir:
@@ -25,8 +25,8 @@ class CompartirRepository:
         
         return compartir
 
-    def eliminar_compartir_ticket(self, id_ticket: int, id_usuario_compartido: int):
-        self.db.exec(delete(TicketCompartir).where(TicketCompartir.id_ticket == id_ticket).where(TicketCompartir.id_usuario_destino == id_usuario_compartido))
+    def eliminar_compartir_ticket(self, id_ticket: int, id_usuario_destino: int):
+        self.db.exec(delete(TicketCompartir).where(TicketCompartir.id_ticket == id_ticket).where(TicketCompartir.id_usuario_destino == id_usuario_destino))
         self.db.commit()
         
     def eliminar_todos_compartidos(self, id_ticket: int):

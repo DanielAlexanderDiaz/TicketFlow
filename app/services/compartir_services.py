@@ -33,7 +33,7 @@ class CompartirServicie:
         if not (es_propietario or es_asignado or es_superadmin):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='No tienes permiso para compartir este ticket')
         
-        nuevo_compartir = TicketCompartir(id_ticket=id_ticket, id_usuario_origen=id_usuario, id_usuario_destino=payload.id_usuario_compartido)
+        nuevo_compartir = TicketCompartir(id_ticket=id_ticket, id_usuario_origen=id_usuario, id_usuario_destino=payload.id_usuario_destino)
         
         compartir = self.compartir_repo.compartir_ticket(nuevo_compartir)
         
@@ -66,7 +66,7 @@ class CompartirServicie:
         if not (es_propietario or es_asignado or es_superadmin):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='No tienes permiso para quitar compartir este ticket')
         
-        quitar_compartir = payload.id_usuario_compartido
+        quitar_compartir = payload.id_usuario_destino
         
         self.compartir_repo.eliminar_compartir_ticket(id_ticket, quitar_compartir)
         
