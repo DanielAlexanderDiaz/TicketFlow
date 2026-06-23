@@ -205,3 +205,4 @@ class TicketService:
         ticket_actualizado = self.ticket_repo.actualizar_ticket(ticket)
         
         return InformacionTicket.model_validate(ticket_actualizado)
+    

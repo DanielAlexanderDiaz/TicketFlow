@@ -2,7 +2,6 @@ from pydantic import BaseModel, ConfigDict, Field
     
 
 class CompartirTicket(BaseModel):
-    id_ticket: int
     id_usuario_compartido: int
     
 class InformacionCompartir(BaseModel):
