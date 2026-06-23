@@ -7,6 +7,7 @@ from app.models import ticket
 from app.models.auditoria import Auditoria
 from app.models.ticket import TRANSICIONES_PERMITIDAS, EstadoTicket, Ticket
 from app.repositories.auditoria_repository import AuditoriaRepositorio
+from app.repositories.comentario_repository import ComentarioRepositorio
 from app.schemas.ticket import ActualizarTicket, AsignarTicket, CambioEstadoTicket, CrearTicket, EliminarTicket, InformacionTicket
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
@@ -19,6 +20,7 @@ class TicketService:
         self.usuario_repo = UsuarioRepositorio(db)
         self.ticket_repo = TicketRepositorio(db)
         self.compartir_repo = CompartirRepository(db)
+        self.comentario_repo = ComentarioRepositorio(db)
         self.auditoria_repo = AuditoriaRepositorio(db)
         
     def crear_ticket(self, id_usuario: int, payload: CrearTicket) -> InformacionTicket:
@@ -103,7 +105,7 @@ class TicketService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='No tienes permiso para eliminar este ticket')
         
         self.ticket_repo.eliminar_ticket(payload.id_ticket)
-        
+    
         self.auditoria_repo.crear_audtoria(Auditoria(
             entidad = "ticket",
             id_entidad = ticket.id,
@@ -114,6 +116,36 @@ class TicketService:
             valor_nuevo="*",
             accion="Eliminar"
         ))
+        
+        comentarios = self.comentario_repo.get_comentario_by_ticket(payload.id_ticket)
+        for comentario in comentarios:
+            self.comentario_repo.eliminar_comentario(comentario.id)
+            
+            self.auditoria_repo.crear_audtoria(Auditoria(
+                entidad = "comentario",
+                id_entidad = comentario.id,
+                id_usuario = id_usuario,
+                campo_cambiado="*",
+                fecha_cambio=datetime.now(),
+                valor_anterior="*",
+                valor_nuevo="*",
+                accion="eliminado"
+            ))
+            
+        compartidos = self.compartir_repo.todos_compartidos_ticket(payload.id_ticket)
+        for compartir in compartidos:
+            self.compartir_repo.eliminar_todos_compartidos(payload.id_ticket)
+            
+            self.auditoria_repo.crear_audtoria(Auditoria(
+                entidad = "compartir_ticket",
+                id_entidad = compartir.id,
+                id_usuario = id_usuario,
+                campo_cambiado="*",
+                fecha_cambio=datetime.now(),
+                valor_anterior="*",
+                valor_nuevo="*",
+                accion="eliminado"
+            ))
         
     def cambio_estado_ticket(self, id_usuario: int, id_ticket: int, payload: CambioEstadoTicket) -> InformacionTicket:
         ticket = self.ticket_repo.get_ticket_by_id(id_ticket)
@@ -185,7 +217,7 @@ class TicketService:
         if not ticket:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Ticket no encontrado')
         
-        if ticket.asignado < 1:
+        if not ticket.asignado:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El ticket no está asignado')
         
         valor_anterior = ticket.asignado
