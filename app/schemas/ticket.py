@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Literal, Optional
 from pydantic import BaseModel, ConfigDict
 from fastapi import UploadFile
 from app.models.ticket import EstadoTicket, PrioridadTicket
@@ -39,3 +39,13 @@ class InformacionTicket(BaseModel):
     activo: bool
     imagen_url: str = ""
     model_config = ConfigDict(from_attributes = True)
+    
+class PaginacionTicket(BaseModel):
+    total: int
+    total_paginas: int
+    tiene_anterior: bool
+    tiene_siguiente: bool
+    ordernado_por: Literal["id", "title"]
+    direccion: Literal["asc", "desc"]
+    buscar: Optional[str] = None
+    items: List[InformacionTicket]

@@ -1,3 +1,5 @@
+from typing import Optional
+from sqlalchemy import func
 from sqlmodel import Session, desc, select, delete
 from app.models.ticket import Ticket
 
@@ -28,3 +30,15 @@ class TicketRepositorio:
     def eliminar_ticket(self, id_ticket: int) -> None:
         self.db.exec(delete(Ticket).where(Ticket.id == id_ticket))
         self.db.commit()
+        
+    def buscar_ticket(self, query: Optional[str], orden: str, direccion: str, limit: int, offset: int) -> tuple[int, list[Ticket]]:
+        stmt = select(Ticket)
+        if query:
+            stmt = stmt.where(Ticket.titulo(f"%{query}%"))
+            
+        total = self.db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
+        if total == 0:
+            return 0, []
+        
+        order_col = Ticket.id if orden == "id" else func.lower(Ticket.titulo)
+        

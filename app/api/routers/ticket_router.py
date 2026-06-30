@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from typing import List
+
+from fastapi import APIRouter, Depends, Query, status
 from app.api.dependencias import DBSession, UsuarioActual, ticket_crear, ticket_actualizar, ticket_eliminar, ticket_cambiar_estado, ticket_asignar, ticket_desasignar
 from app.schemas.ticket import CrearTicket, ActualizarTicket, EliminarTicket, CambioEstadoTicket, AsignarTicket, InformacionTicket
 from app.services.ticket_services import TicketService
@@ -34,3 +36,7 @@ def asignar_ticket(db: DBSession, id_ticket: int, id_usuario: UsuarioActual, pay
 def quitar_asignar_ticket(db: DBSession, id_ticket: int, id_usuario: UsuarioActual):
     servicio = TicketService(db).quitar_asignar_ticket(id_ticket, id_usuario.id)
     return servicio
+
+@router.get("/tickets", response_model=List[InformacionTicket])
+def lista_tickets(query: str | None = Query(default=None, description="Texto para buscar por título"), db: DBSession = Depends(), id_usuario: UsuarioActual = Depends()):
+    pass
