@@ -1,6 +1,6 @@
 from datetime import datetime
 from math import ceil
-from typing import Optional
+from typing import List, Optional
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.core.seguridad import RolUsuario
@@ -240,16 +240,17 @@ class TicketService:
         return InformacionTicket.model_validate(ticket_actualizado)
     
     def listado_ticket(self, query: Optional[str], orden: str, direccion: str, pagina: int, por_pagina: int) -> PaginacionTicket:
-        if query is None:
-            query = ""
-            
-        total, items = self._buscar(query, orden, direccion, pagina, por_pagina)
+        total_filtrado = self.ticket_repo.contar_tickets_filtrados(query)
+
+        total_paginas = ceil(total_filtrado / por_pagina) if total_filtrado > 0 else 0
+        pagina_actual = 1 if total_paginas == 0 else min(pagina, total_paginas)
+        offset = (pagina_actual - 1) * por_pagina
         
-        total_paginas = ceil(total / por_pagina) if total > 0 else 0
-        pagina_actual = 1 if total_paginas == 0 else min(pagina / total_paginas)
+        _, items = self.ticket_repo.buscar_ticket(query or "", orden, direccion, por_pagina, offset)
+        
         
         return PaginacionTicket(
-            total=total,
+            total=total_filtrado,
             total_paginas=total_paginas,
             tiene_anterior=pagina_actual > 1,
             tiene_siguiente=pagina_actual < total_paginas,
@@ -258,15 +259,3 @@ class TicketService:
             buscar=query,
             items=[InformacionTicket.model_validate(ticket) for ticket in items]
         )
-    
-    def _buscar(self, query, orden, direccion, pagina, por_pagina):
-        total = self.ticket_repo.contar_tickets()
-        if total == 0:
-            return 0, []
-        
-        total_paginas = max(1, ceil(total / por_pagina))
-        pagina_actual = min(pagina, total_paginas)
-        offset = (pagina_actual - 1) * por_pagina
-        total, items = self.ticket_repo.buscar_ticket(query, orden, direccion, por_pagina, offset)
-        
-        return total, items

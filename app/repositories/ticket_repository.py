@@ -31,13 +31,16 @@ class TicketRepositorio:
         self.db.exec(delete(Ticket).where(Ticket.id == id_ticket))
         self.db.commit()
         
-    def contar_tickets(self) -> int:
-        return self.db.exec(select(func.count(Ticket.id))).scalar()
+    def contar_tickets_filtrados(self, query: Optional[str]) -> int:
+        stmt = select(Ticket)
+        if query:
+            stmt = stmt.where(Ticket.titulo.ilike(f"%{query}%"))
+        return self.db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
         
     def buscar_ticket(self, query: Optional[str], orden: str, direccion: str, limit: int, offset: int) -> tuple[int, list[Ticket]]:
         stmt = select(Ticket)
         if query:
-            stmt = stmt.where(Ticket.titulo(f"%{query}%"))
+            stmt = stmt.where(Ticket.titulo.ilike(f"%{query}%"))
             
         total = self.db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
         if total == 0:
