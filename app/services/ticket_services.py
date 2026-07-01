@@ -1,4 +1,6 @@
 from datetime import datetime
+from math import ceil
+from typing import Optional
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.core.seguridad import RolUsuario
@@ -7,7 +9,7 @@ from app.models.auditoria import Auditoria
 from app.models.ticket import Ticket
 from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.repositories.comentario_repository import ComentarioRepositorio
-from app.schemas.ticket import ActualizarTicket, AsignarTicket, CambioEstadoTicket, CrearTicket, EliminarTicket, InformacionTicket
+from app.schemas.ticket import ActualizarTicket, AsignarTicket, CambioEstadoTicket, CrearTicket, EliminarTicket, InformacionTicket, PaginacionTicket
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
@@ -103,19 +105,6 @@ class TicketService:
         if not (es_propietario or es_superadmin):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='No tienes permiso para eliminar este ticket')
         
-        self.ticket_repo.eliminar_ticket(payload.id_ticket)
-    
-        self.auditoria_repo.crear_audtoria(Auditoria(
-            entidad = "ticket",
-            id_entidad = ticket.id,
-            id_usuario = id_usuario,
-            campo_cambiado="*",
-            fecha_cambio=datetime.now(),
-            valor_anterior="*",
-            valor_nuevo="*",
-            accion="Eliminar"
-        ))
-        
         comentarios = self.comentario_repo.get_comentario_by_ticket(payload.id_ticket)
         for comentario in comentarios:
             self.comentario_repo.eliminar_comentario(comentario.id)
@@ -145,6 +134,19 @@ class TicketService:
                 valor_nuevo="*",
                 accion="eliminado"
             ))
+        
+        self.ticket_repo.eliminar_ticket(payload.id_ticket)
+    
+        self.auditoria_repo.crear_audtoria(Auditoria(
+            entidad = "ticket",
+            id_entidad = ticket.id,
+            id_usuario = id_usuario,
+            campo_cambiado="*",
+            fecha_cambio=datetime.now(),
+            valor_anterior="*",
+            valor_nuevo="*",
+            accion="Eliminar"
+        ))
         
     def cambio_estado_ticket(self, id_usuario: int, id_ticket: int, payload: CambioEstadoTicket) -> InformacionTicket:
         ticket = self.ticket_repo.get_ticket_by_id(id_ticket)
@@ -237,3 +239,34 @@ class TicketService:
         
         return InformacionTicket.model_validate(ticket_actualizado)
     
+    def listado_ticket(self, query: Optional[str], orden: str, direccion: str, pagina: int, por_pagina: int) -> PaginacionTicket:
+        if query is None:
+            query = ""
+            
+        total, items = self._buscar(query, orden, direccion, pagina, por_pagina)
+        
+        total_paginas = ceil(total / por_pagina) if total > 0 else 0
+        pagina_actual = 1 if total_paginas == 0 else min(pagina / total_paginas)
+        
+        return PaginacionTicket(
+            total=total,
+            total_paginas=total_paginas,
+            tiene_anterior=pagina_actual > 1,
+            tiene_siguiente=pagina_actual < total_paginas,
+            orden=orden,
+            direccion=direccion,
+            buscar=query,
+            items=[InformacionTicket.model_validate(ticket) for ticket in items]
+        )
+    
+    def _buscar(self, query, orden, direccion, pagina, por_pagina):
+        total = self.ticket_repo.contar_tickets()
+        if total == 0:
+            return 0, []
+        
+        total_paginas = max(1, ceil(total / por_pagina))
+        pagina_actual = min(pagina, total_paginas)
+        offset = (pagina_actual - 1) * por_pagina
+        total, items = self.ticket_repo.buscar_ticket(query, orden, direccion, por_pagina, offset)
+        
+        return total, items

@@ -45,7 +45,7 @@ class PaginacionTicket(BaseModel):
     total_paginas: int
     tiene_anterior: bool
     tiene_siguiente: bool
-    ordernado_por: Literal["id", "title"]
+    orden: Literal["id", "title"]
     direccion: Literal["asc", "desc"]
     buscar: Optional[str] = None
     items: List[InformacionTicket]

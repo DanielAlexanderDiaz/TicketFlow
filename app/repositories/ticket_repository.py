@@ -31,6 +31,9 @@ class TicketRepositorio:
         self.db.exec(delete(Ticket).where(Ticket.id == id_ticket))
         self.db.commit()
         
+    def contar_tickets(self) -> int:
+        return self.db.exec(select(func.count(Ticket.id))).scalar()
+        
     def buscar_ticket(self, query: Optional[str], orden: str, direccion: str, limit: int, offset: int) -> tuple[int, list[Ticket]]:
         stmt = select(Ticket)
         if query:
@@ -40,5 +43,9 @@ class TicketRepositorio:
         if total == 0:
             return 0, []
         
-        order_col = Ticket.id if orden == "id" else func.lower(Ticket.titulo)
-        
+        orden_col = Ticket.id if orden == "id" else func.lower(Ticket.titulo)
+        stmt = stmt.order_by(orden_col.asc() if direccion == "asc" else orden_col.desc())
+        items = self.db.exec(stmt.limit(limit).offset(offset)).all()
+        return total, items
+    
+    
