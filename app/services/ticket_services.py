@@ -9,7 +9,7 @@ from app.models.auditoria import Auditoria
 from app.models.ticket import Ticket
 from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.repositories.comentario_repository import ComentarioRepositorio
-from app.schemas.ticket import ActualizarTicket, AsignarTicket, CambioEstadoTicket, CrearTicket, EliminarTicket, InformacionTicket, PaginacionTicket
+from app.schemas.ticket import ActualizarTicket, AsignarTicket, CambioEstadoTicket, CrearTicket, EliminarTicket, FiltrosTicket, InformacionTicket, PaginacionTicket
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
@@ -239,23 +239,45 @@ class TicketService:
         
         return InformacionTicket.model_validate(ticket_actualizado)
     
-    def listado_ticket(self, query: Optional[str], orden: str, direccion: str, pagina: int, por_pagina: int) -> PaginacionTicket:
-        total_filtrado = self.ticket_repo.contar_tickets_filtrados(query)
+    def listado_ticket(self, id_usuario: int, filtros: FiltrosTicket, pagina: int, por_pagina: int) -> PaginacionTicket:
+        usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
+        if not usuario:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
 
-        total_paginas = ceil(total_filtrado / por_pagina) if total_filtrado > 0 else 0
-        pagina_actual = 1 if total_paginas == 0 else min(pagina, total_paginas)
-        offset = (pagina_actual - 1) * por_pagina
-        
-        _, items = self.ticket_repo.buscar_ticket(query or "", orden, direccion, por_pagina, offset)
-        
-        
+        # RF-21 - ABAC: superadmin ve todo, el resto ve solo lo suyo (unión de sets)
+        if usuario.rol == RolUsuario.SUPERADMIN:
+            ids_permitidos = None
+        else:
+            ids_propios = set(self.ticket_repo.ids_tickets_propios_o_asignados(id_usuario))
+            ids_compartidos = set(self.compartir_repo.tickets_compartidos_con_usuario(id_usuario))
+            ids_permitidos = ids_propios | ids_compartidos
+
+        offset = (pagina - 1) * por_pagina
+
+        total, items = self.ticket_repo.buscar_ticket(
+            ids_permitidos=ids_permitidos,
+            buscar_titulo=filtros.buscar_titulo,
+            buscar_descripcion=filtros.buscar_descripcion,
+            id_ticket=filtros.id_ticket,
+            prioridad=filtros.prioridad,
+            estado=filtros.estado,
+            asignado=filtros.asignado,
+            fecha_desde=filtros.fecha_desde,
+            fecha_hasta=filtros.fecha_hasta,
+            orden=filtros.orden,
+            direccion=filtros.direccion,
+            limit=por_pagina,
+            offset=offset,
+        )
+
+        total_paginas = ceil(total / por_pagina) if total > 0 else 0
+
         return PaginacionTicket(
-            total=total_filtrado,
+            total=total,
             total_paginas=total_paginas,
-            tiene_anterior=pagina_actual > 1,
-            tiene_siguiente=pagina_actual < total_paginas,
-            orden=orden,
-            direccion=direccion,
-            buscar=query,
-            items=[InformacionTicket.model_validate(ticket) for ticket in items]
+            pagina_actual=pagina,
+            tiene_anterior=pagina > 1,
+            tiene_siguiente=pagina < total_paginas,
+            filtros=filtros,
+            items=[InformacionTicket.model_validate(t) for t in items]
         )

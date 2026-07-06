@@ -32,3 +32,7 @@ class CompartirRepository:
     def eliminar_todos_compartidos(self, id_ticket: int):
         self.db.exec(delete(TicketCompartir).where(TicketCompartir.id_ticket == id_ticket))
         self.db.commit()
+        
+    def tickets_compartidos_con_usuario(self, id_usuario_destino: int) -> list[int]:
+        query = select(TicketCompartir.id_ticket).where(TicketCompartir.id_usuario_destino == id_usuario_destino)
+        return self.db.exec(query).all()

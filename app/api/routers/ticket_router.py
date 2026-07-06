@@ -1,7 +1,9 @@
+from datetime import date
 from typing import List, Literal, Optional
 from fastapi import APIRouter, Depends, Query, status
 from app.api.dependencias import DBSession, UsuarioActual, ticket_crear, ticket_actualizar, ticket_eliminar, ticket_cambiar_estado, ticket_asignar, ticket_desasignar
-from app.schemas.ticket import CrearTicket, ActualizarTicket, EliminarTicket, CambioEstadoTicket, AsignarTicket, InformacionTicket, PaginacionTicket
+from app.models.ticket import EstadoTicket, PrioridadTicket
+from app.schemas.ticket import CrearTicket, ActualizarTicket, EliminarTicket, CambioEstadoTicket, AsignarTicket, FiltrosTicket, InformacionTicket, PaginacionTicket
 from app.services.ticket_services import TicketService
 
 router = APIRouter(prefix="/ticket", tags=["ticket"])
@@ -36,12 +38,33 @@ def quitar_asignar_ticket(db: DBSession, id_ticket: int, id_usuario: UsuarioActu
     servicio = TicketService(db).quitar_asignar_ticket(id_ticket, id_usuario.id)
     return servicio
 
-@router.get("/tickets", response_model=PaginacionTicket)
-def lista_tickets(db: DBSession, id_usuario: UsuarioActual, query: Optional[str] | None = Query(default=None, description="Texto para buscar por título"), 
-                por_pagina: int = Query(default=10, ge=1, le=50, description="Cantidad de tickets por pagina"),
-                pagina: int = Query(default=1, ge=1, description="Pagina de tickets"),
-                orden: Literal["id", "titulo"] = Query(default="id", description="Ordenar por id o titulo"),
-                direccion: Literal["asc", "desc"] = Query(default="asc", description="Orden ascendente o descendente")
-                ):
-    servicio = TicketService(db).listado_ticket(query, orden, direccion, pagina, por_pagina)
+@router.get('/tickets', response_model=PaginacionTicket)
+def lista_tickets(
+    db: DBSession, id_usuario: UsuarioActual,
+    buscar_titulo: Optional[str] = Query(default=None, description="Búsqueda parcial por título"),
+    buscar_descripcion: Optional[str] = Query(default=None, description="Búsqueda parcial por descripción"),
+    id_ticket: Optional[int] = Query(default=None, description="Filtrar por N° de ticket"),
+    prioridad: Optional[PrioridadTicket] = Query(default=None, description="Filtrar por prioridad"),
+    estado: Optional[EstadoTicket] = Query(default=None, description="Filtrar por estado"),
+    asignado: Optional[int] = Query(default=None, description="Filtrar por usuario asignado"),
+    fecha_desde: Optional[date] = Query(default=None),
+    fecha_hasta: Optional[date] = Query(default=None),
+    orden: Literal["id", "titulo", "prioridad", "estado", "fecha_creacion"] = Query(default="id"),
+    direccion: Literal["asc", "desc"] = Query(default="asc"),
+    pagina: int = Query(default=1, ge=1),
+    por_pagina: int = Query(default=10, ge=1, le=50),
+):
+    filtros = FiltrosTicket(
+        buscar_titulo=buscar_titulo,
+        buscar_descripcion=buscar_descripcion,
+        id_ticket=id_ticket,
+        prioridad=prioridad,
+        estado=estado,
+        asignado=asignado,
+        fecha_desde=fecha_desde,
+        fecha_hasta=fecha_hasta,
+        orden=orden,
+        direccion=direccion,
+    )
+    servicio = TicketService(db).listado_ticket(id_usuario.id, filtros, pagina, por_pagina)
     return servicio
