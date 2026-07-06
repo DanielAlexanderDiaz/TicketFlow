@@ -1,9 +1,11 @@
 from datetime import datetime
+from math import ceil
 from fastapi import HTTPException, Query, status
 from sqlmodel import Session
+from app.core.seguridad import RolUsuario
 from app.models.auditoria import Auditoria
 from app.repositories.auditoria_repository import AuditoriaRepositorio
-from app.schemas.usuario import ActualizarPermisos, ActualizarRol, ActualizarUsuario, InformacionUsuario, UsuarioActivo
+from app.schemas.usuario import ActualizarPermisos, ActualizarRol, ActualizarUsuario, FiltrosUsuario, InformacionUsuario, PaginacionUsuario, UsuarioActivo
 from app.repositories.usuario_repository import UsuarioRepositorio
 from app.utils.uploads_file import save_uploaded_img
 
@@ -186,7 +188,39 @@ class UsuarioService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
         return InformacionUsuario.model_validate(usuario)
     
-    
+    def listado_usuario(self, id_usuario: int, filtros: FiltrosUsuario, pagina: int, por_pagina: int) -> PaginacionUsuario:
+        usuario = self.usuario_repo.get_usuario_by_id(id_usuario)
+        if not usuario:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
+        if not usuario.rol == RolUsuario.SUPERADMIN:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Acceso denegado')
+        
+        offset = (pagina - 1) * por_pagina
+        
+        total, items = self.usuario_repo.buscar_usuario(
+            buscar_email=filtros.buscar_email,
+            buscar_nombre=filtros.buscar_nombre,
+            rol=filtros.rol,
+            activo=filtros.activo,
+            orden=filtros.orden,
+            direccion=filtros.direccion,
+            limit=por_pagina,
+            offset=offset,
+        )
+        
+        total_paginas = ceil(total / por_pagina) if total > 0 else 0
+        
+        return PaginacionUsuario(
+            total=total,
+            total_paginas=total_paginas,
+            pagina_actual=pagina,
+            tiene_anterior=pagina > 1,
+            tiene_siguiente=pagina < total_paginas,
+            filtros=filtros,
+            items=[InformacionUsuario.model_validate(l) for l in items] 
+        )
+            
+        
     
     
     

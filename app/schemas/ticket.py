@@ -55,7 +55,6 @@ class FiltrosTicket(BaseModel):
     orden: Literal["id", "titulo","prioridad", "estado", "fecha_creacion"] = "id"
     direccion: Literal["asc", "desc"] = "asc"
     
-    
 class PaginacionTicket(BaseModel):
     total: int
     total_paginas: int

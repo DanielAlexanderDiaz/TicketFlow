@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from app.core.seguridad import RolUsuario
 
@@ -37,4 +37,22 @@ class InformacionUsuario(BaseModel):
     activo: bool
     permiso: list[str] = Field(default_factory=list)
     model_config = ConfigDict(from_attributes = True)
+    
+class FiltrosUsuario(BaseModel):
+    buscar_email: Optional[str] = None
+    buscar_nombre: Optional[str] = None
+    rol: Optional[RolUsuario] = None
+    activo: Optional[bool] = None
+    orden: Literal["id", "email", "nombre_usuario", "activo"] = "id"
+    direccion: Literal["asc", "desc"] = "asc"
+    
+class PaginacionUsuario(BaseModel):
+    total: int
+    total_paginas: int
+    pagina_actual: int
+    tiene_anterior: bool
+    tiene_siguiente: bool
+    buscar: Optional[str] = None
+    items: list[InformacionUsuario]    
+
     
