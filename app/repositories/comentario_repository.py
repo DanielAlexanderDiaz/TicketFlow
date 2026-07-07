@@ -56,7 +56,7 @@ class ComentarioRepositorio:
             if not ids_permitidos:
                 return 0, []
             stmt = stmt.where(Comentario.id_ticket.in_(ids_permitidos))
-        
+            
         # Filtros - Coincidencia exacta
         if id_ticket is not None:
             stmt = stmt.where(Comentario.id_ticket == id_ticket)

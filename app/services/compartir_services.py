@@ -1,5 +1,9 @@
 from datetime import datetime
+from math import ceil
+import select
+from typing import Optional
 from fastapi import HTTPException, status
+from sqlalchemy import func
 from sqlmodel import Session
 from app.core.seguridad import RolUsuario
 from app.models.auditoria import Auditoria
@@ -8,7 +12,7 @@ from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
-from app.schemas.compartir import CompartirTicket, InformacionCompartir
+from app.schemas.compartir import CompartirTicket, FiltroCompartir, InformacionCompartir, PaginacionCompartir
 
 
 
@@ -80,3 +84,40 @@ class CompartirServicie:
             valor_nuevo="*",
             accion="eliminado"
         ))
+        
+    def listado_compartido(self, _id_usuario: int, filtros: FiltroCompartir, pagina: int, por_pagina: int) -> InformacionCompartir:
+        usuario = self.usuario_repo.get_usuario_by_id(_id_usuario)
+        if not usuario:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+        
+        if usuario.rol == RolUsuario.SUPERADMIN:
+            ids_permitidos = None
+        else:
+            ids_propios = set(self.compartir_repo.ids_tickets_compartidos_por_usuario_origen(_id_usuario))
+            ids_permitidos = ids_propios
+            
+        offset = (pagina - 1) * por_pagina
+        
+        total, items = self.compartir_repo.buscar_compartidos(
+            ids_permitidos=ids_permitidos,
+            id_ticket=filtros.id_ticket,
+            id_usuario_origen=filtros.id_usuario_origen,
+            id_usuario_destino=filtros.id_usuario_destino,
+            fecha_creacion=filtros.fecha_creacion,
+            orden=filtros.orden,
+            direccion=filtros.direccion,
+            limit=por_pagina,
+            offset=offset
+        )
+        
+        total_paginas = ceil(total / por_pagina) if total > 0 else 0
+        
+        return PaginacionCompartir(
+            total=total,
+            total_paginas=total_paginas,
+            pagina_actual=pagina,
+            tiene_anterior=pagina > 1,
+            tiene_siguiente=pagina < total_paginas,
+            filtros=filtros,
+            items=[InformacionCompartir.model_validate(compartir) for compartir in items]
+        )
