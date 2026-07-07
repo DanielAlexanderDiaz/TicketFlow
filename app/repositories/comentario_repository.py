@@ -52,10 +52,10 @@ class ComentarioRepositorio:
                         ) -> tuple[int, list[Comentario]]:
         stmt = select(Comentario)
         
-        if ids_permitidos is None:
+        if ids_permitidos is not None:
             if not ids_permitidos:
                 return 0, []
-        stmt = stmt.where(Comentario.id_ticket.in_(ids_permitidos))
+            stmt = stmt.where(Comentario.id_ticket.in_(ids_permitidos))
         
         # Filtros - Coincidencia exacta
         if id_ticket is not None:
@@ -63,7 +63,7 @@ class ComentarioRepositorio:
         if id_usuario is not None:
             stmt = stmt.where(Comentario.id_usuario == id_usuario)
         if comentario is not None:
-            stmt = stmt.where(Comentario.comentario == comentario)
+            stmt = stmt.where(Comentario.comentario.ilike(f"%{comentario}%"))
         if fecha_creacion is not None:
             stmt = stmt.where(Comentario.fecha_creacion == fecha_creacion)
         if fecha_actualizacion is not None:
