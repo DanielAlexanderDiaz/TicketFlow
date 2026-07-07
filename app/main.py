@@ -10,6 +10,7 @@ from app.api.routers.usuario_router import router as usuario_router
 from app.api.routers.ticket_router import router as ticket_router
 from app.api.routers.comentario_router import router as comentario_router
 from app.api.routers.compartir_router import router as compartir_router
+from app.api.routers.auditoria_router import router as auditoria_router
 from app.utils.uploads_file import MEDIA_DIR
 
 load_dotenv()
@@ -42,6 +43,7 @@ app.include_router(usuario_router, prefix="/api/v1")
 app.include_router(ticket_router, prefix="/api/v1")
 app.include_router(comentario_router, prefix="/api/v1")
 app.include_router(compartir_router, prefix="/api/v1")
+app.include_router(auditoria_router, prefix="/api/v1")
 
 # os.makedirs(MEDIA_DIR, exist_ok=True)
 app.mount("/media", StaticFiles(directory=MEDIA_DIR), name="media")
