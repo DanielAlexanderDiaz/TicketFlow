@@ -30,7 +30,7 @@ class FiltroComentario(BaseModel):
     orden: Literal["id", "id_ticket","id_usuario", "fecha_creacion", "fecha_actualizacion"] = "id"
     direccion: Literal["asc", "desc"] = "asc"
     
-class PaginacionTicket(BaseModel):
+class PaginacionComentario(BaseModel):
     total: int
     total_paginas: int
     pagina_actual: int

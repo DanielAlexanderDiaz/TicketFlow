@@ -39,6 +39,7 @@ class ComentarioRepositorio:
         return self.db.exec(query).one()
     
     def buscar_comentario(self,
+                        ids_permitidos: Optional[set[int]],
                         id_ticket: Optional[int],
                         id_usuario: Optional[int],
                         comentario: Optional[str],
@@ -48,8 +49,13 @@ class ComentarioRepositorio:
                         direccion: str,
                         limit: int,
                         offset: int,
-                        ):
+                        ) -> tuple[int, list[Comentario]]:
         stmt = select(Comentario)
+        
+        if ids_permitidos is None:
+            if not ids_permitidos:
+                return 0, []
+        stmt = stmt.where(Comentario.id_ticket.in_(ids_permitidos))
         
         # Filtros - Coincidencia exacta
         if id_ticket is not None:
