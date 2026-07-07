@@ -1,3 +1,6 @@
+from datetime import date
+from typing import Optional
+from sqlalchemy import func
 from sqlmodel import Session, select, delete
 from app.models.comentario import Comentario
 
@@ -34,3 +37,47 @@ class ComentarioRepositorio:
     def ultimo_comentario(self, id_ticket: int) -> bool:
         query = select(Comentario).where(Comentario.id_ticket == id_ticket).order_by(Comentario.id.desc()).limit(1)
         return self.db.exec(query).one()
+    
+    def buscar_comentario(self,
+                        id_ticket: Optional[int],
+                        id_usuario: Optional[int],
+                        comentario: Optional[str],
+                        fecha_creacion: Optional[date],
+                        fecha_actualizacion: Optional[date],
+                        orden: str,
+                        direccion: str,
+                        limit: int,
+                        offset: int,
+                        ):
+        stmt = select(Comentario)
+        
+        # Filtros - Coincidencia exacta
+        if id_ticket is not None:
+            stmt = stmt.where(Comentario.id_ticket == id_ticket)
+        if id_usuario is not None:
+            stmt = stmt.where(Comentario.id_usuario == id_usuario)
+        if comentario is not None:
+            stmt = stmt.where(Comentario.comentario == comentario)
+        if fecha_creacion is not None:
+            stmt = stmt.where(Comentario.fecha_creacion == fecha_creacion)
+        if fecha_actualizacion is not None:
+            stmt = stmt.where(Comentario.fecha_actualizacion == fecha_actualizacion)
+        
+        total = self.db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
+        if total == 0:
+            return 0, []
+        
+        # Ordenar
+        columnas_orden = {
+            "id": Comentario.id,
+            "id_ticket": Comentario.id_ticket,
+            "id_usuario": Comentario.id_usuario,
+            "fecha_creacion": Comentario.fecha_creacion,
+            "fecha_actualizacion": Comentario.fecha_actualizacion,
+        }
+        
+        orden_col = columnas_orden.get(orden, Comentario.id)
+        stmt = stmt.order_by(orden_col.asc() if direccion == "asc" else orden_col.desc())
+        
+        items = self.db.exec(stmt.offset(offset).limit(limit)).all()
+        return total, items

@@ -8,7 +8,7 @@ from app.repositories.auditoria_repository import AuditoriaRepositorio
 from app.repositories.compartir_repository import CompartirRepository
 from app.repositories.ticket_repository import TicketRepositorio
 from app.repositories.usuario_repository import UsuarioRepositorio
-from app.schemas.comentario import EliminarComentario, InformacionComentario, ActualizarComentario, CrearComentario
+from app.schemas.comentario import EliminarComentario, FiltroComentario, InformacionComentario, ActualizarComentario, CrearComentario
 from app.repositories.comentario_repository import ComentarioRepositorio
 
 
@@ -107,3 +107,6 @@ class ComentarioService():
             valor_nuevo="*",
             accion="eliminado"
         ))
+        
+    def listado_comentario(self, id_usuario: int, filtros: FiltroComentario, pagina: int, por_pagina: int)-> InformacionComentario:
+        pass
