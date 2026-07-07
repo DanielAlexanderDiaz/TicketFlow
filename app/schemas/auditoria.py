@@ -26,14 +26,14 @@ class InformacionAuditoria(BaseModel):
     model_config = ConfigDict(from_attributes = True)
     
 class FiltroAuditoria(BaseModel):
-    entidad: str
-    id_entidad: int
-    id_usuario: int
-    campo_cambiado: str
+    entidad: Optional[str] = None
+    id_entidad: Optional[int] = None
+    id_usuario: Optional[int] = None
+    campo_cambiado: Optional[str] = None
     fecha_desde: Optional[datetime] = None
     fecha_hasta: Optional[datetime] = None
-    accion: str
-    orden: Literal["id", "id_entidad", "id_usuario"] = "id"
+    accion: Optional[str] = None
+    orden: Literal["id", "id_entidad", "id_usuario", "fecha_cambio"] = "id"
     direccion: Literal["asc", "desc"] = "asc"
     
 class PaginacionAuditoria(BaseModel):

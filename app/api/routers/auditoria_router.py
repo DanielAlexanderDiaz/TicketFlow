@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from typing import Literal, Optional
 from fastapi import APIRouter, Query
 from app.api.dependencias import DBSession, UsuarioActual
@@ -15,9 +15,9 @@ def lista_auditoria(
     id_usuario: Optional[int] = Query(default=None, description="Filtrar por id usuario"),
     campo_cambiado: Optional[str] = Query(default=None, description="Búsqueda parcial por título"),
     accion: Optional[str] = Query(default=None, description="Búsqueda parcial por título"),
-    fecha_desde: Optional[date] = Query(default=None),
-    fecha_hasta: Optional[date] = Query(default=None),
-    orden: Literal["id", "id_entidad", "id_usuario"] = Query(default="id"),
+    fecha_desde: Optional[datetime] = Query(default=None),
+    fecha_hasta: Optional[datetime] = Query(default=None),
+    orden: Literal["id", "id_entidad", "id_usuario", "fecha_cambio"] = Query(default="id"),
     direccion: Literal["asc", "desc"] = Query(default="asc"),
     pagina: int = Query(default=1, ge=1),
     por_pagina: int = Query(default=10, ge=1, le=50),

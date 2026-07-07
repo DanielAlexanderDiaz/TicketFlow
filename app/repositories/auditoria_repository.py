@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from typing import Optional
 from sqlalchemy import func
 from sqlmodel import Session, select
@@ -25,8 +25,8 @@ class AuditoriaRepositorio:
                         id_usuario: Optional[int],
                         campo_cambiado: Optional[str],
                         accion: Optional[str],
-                        fecha_desde: Optional[date],
-                        fecha_hasta: Optional[date],
+                        fecha_desde: Optional[datetime],
+                        fecha_hasta: Optional[datetime],
                         orden: str,
                         direccion: str,
                         limit: int,
@@ -60,7 +60,8 @@ class AuditoriaRepositorio:
         columna_orden = {
             "id": Auditoria.id,
             "id_entidad": Auditoria.id_entidad,
-            "id_usuario": Auditoria.id_usuario
+            "id_usuario": Auditoria.id_usuario,
+            "fecha_cambio": Auditoria.fecha_cambio
         }
         
         orden_col = columna_orden.get(orden, Auditoria.id)
