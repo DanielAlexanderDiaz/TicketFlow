@@ -11,10 +11,7 @@ from app.repositories.usuario_repository import UsuarioRepositorio
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
-def get_db() -> Session:
-    return Depends(get_session)
-
-DBSession = Annotated[Session, Depends(get_db)]
+DBSession = Annotated[Session, Depends(get_session)]
 
 def get_usuario_actual(token: Annotated[str, Depends(oauth2_scheme)], db: DBSession) -> Usuario:
     excepcion_credencial = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No autorizado", headers={"WWW-Authenticate": "Bearer"})
