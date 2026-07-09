@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Literal, Optional
 from pydantic import BaseModel, ConfigDict
-from fastapi import UploadFile
 from app.models.ticket import EstadoTicket, PrioridadTicket
 
 

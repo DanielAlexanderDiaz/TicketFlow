@@ -36,7 +36,7 @@ class ComentarioRepositorio:
 
     def ultimo_comentario(self, id_ticket: int) -> bool:
         query = select(Comentario).where(Comentario.id_ticket == id_ticket).order_by(Comentario.id.desc()).limit(1)
-        return self.db.exec(query).one()
+        return self.db.exec(query).first()
     
     def buscar_comentario(self,
                         ids_permitidos: Optional[set[int]],

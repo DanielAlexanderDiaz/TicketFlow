@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Optional
-
 from sqlalchemy import func
 from sqlmodel import Session, delete, select
 from app.models.compartir_ticket import TicketCompartir

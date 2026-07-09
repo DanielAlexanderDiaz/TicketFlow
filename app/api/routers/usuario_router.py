@@ -1,7 +1,7 @@
 from typing import Literal, Optional
-from click import pass_obj
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from app.api.dependencias import DBSession, UsuarioActual, requiere_superadmin
+from app.core.seguridad import RolUsuario
 from app.models import Usuario
 from app.schemas.usuario import ActualizarPermisos, ActualizarRol, ActualizarUsuario, FiltrosUsuario, InformacionUsuario, PaginacionUsuario, UsuarioActivo
 from app.services.usuario_services import UsuarioService
@@ -15,7 +15,7 @@ def actualizar_usuario(payload: ActualizarUsuario, db: DBSession, usuario: Usuar
 
 # Actualizar foto de usuario
 @router.patch("/foto/{id_usuario}", response_model=InformacionUsuario)
-def actualizar_foto(db: DBSession, usuario: UsuarioActual, img: Optional[UploadFile] = File(None)):
+def actualizar_foto(db: DBSession, usuario: UsuarioActual, img: Optional[UploadFile] = None):
     return UsuarioService(db).actualizar_imagen(usuario.id, img)
 
 # Eliminar usuario
@@ -46,7 +46,7 @@ def lista_usuarios(
     db: DBSession, id_usuario: UsuarioActual,
     buscar_email: Optional[str] = Query(default=None, description="Búsqueda parcial por email"),
     buscar_nombre: Optional[str] = Query(default=None, description="Búsqueda parcial por nombre"),
-    rol: Optional[int] = Query(default=None, description="Filtrar por rol"),
+    rol: Optional[RolUsuario] = Query(default=None, description="Filtrar por rol"),
     activo: Optional[bool] = Query(default=None, description="activado?"),
     orden: Literal["id", "email", "nombre_usuario", "activo"] = Query(default="id"),
     direccion: Literal["asc", "desc"] = Query(default="asc"),

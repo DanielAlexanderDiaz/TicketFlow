@@ -16,7 +16,7 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     
 class ActualizarUsuario(BaseModel):
-    nombre_usuario: Optional[str]
+    nombre_usuario: Optional[str] = None
     
 class ActualizarRol(BaseModel):
     rol: RolUsuario

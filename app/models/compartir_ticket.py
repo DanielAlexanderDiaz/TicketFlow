@@ -8,6 +8,6 @@ class TicketCompartir(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True) #int
     id_ticket: int = Field(foreign_key="ticket.id", index=True)
     id_usuario_origen: int = Field(foreign_key="usuario.id", index=True)
-    id_usuario_destino: int = Field(gt=0)
+    id_usuario_destino: int = Field(foreign_key="usuario.id", index=True)
     fecha_creacion: datetime = Field(default_factory=datetime.now)
     

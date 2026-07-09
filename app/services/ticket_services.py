@@ -1,6 +1,5 @@
 from datetime import datetime
 from math import ceil
-from typing import List, Optional
 from fastapi import HTTPException, status
 from sqlmodel import Session
 from app.core.seguridad import RolUsuario

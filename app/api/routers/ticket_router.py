@@ -18,7 +18,7 @@ def actualizar_ticket(db: DBSession, id_ticket: int, id_usuario: UsuarioActual, 
     servicio = TicketService(db).actualizar_ticket(id_ticket, id_usuario.id, payload)
     return servicio
 
-@router.delete('/eliminar/{id_ticket}', status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(ticket_eliminar)])
+@router.delete('/eliminar', status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(ticket_eliminar)])
 def eliminar_ticket(db: DBSession, id_usuario: UsuarioActual, payload: EliminarTicket):
     TicketService(db).eliminar_ticket(id_usuario.id, payload)
     return

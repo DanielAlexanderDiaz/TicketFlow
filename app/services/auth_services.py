@@ -1,7 +1,7 @@
 from datetime import datetime
 from fastapi import HTTPException, status
 from sqlmodel import Session
-from app.core.seguridad import crear_token, decodificar_token, decodificar_token_sin_verificar_exp, hash_password, verify_password
+from app.core.seguridad import crear_token, decodificar_token_sin_verificar_exp, hash_password, verify_password
 from app.models.auditoria import Auditoria
 from app.models.usuario import Usuario
 from app.repositories.auditoria_repository import AuditoriaRepositorio
@@ -88,7 +88,7 @@ class AuthServices:
             entidad="Usuario",
             id_entidad=int(payload.get("sub")),
             id_usuario=int(payload.get("sub")),
-            campo_cambiado=None,
+            campo_cambiado="*",
             fecha_cambio=datetime.now(),
             valor_anterior=None,
             valor_nuevo=None,

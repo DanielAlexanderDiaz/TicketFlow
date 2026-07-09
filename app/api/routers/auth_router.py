@@ -19,12 +19,12 @@ def login(payload: LoginRequest, db: DBSession):
     token_response = servicio.login(payload)
     return {"access_token": token_response.access_token, "token_type": "bearer"}
 
-@router.post("/token")
-def login(db: DBSession, form: OAuth2PasswordRequestForm = Depends()):
-    payload = LoginRequest(email=form.username, password=form.password)
-    servicio = AuthServices(db)
-    token_response = servicio.login(payload)
-    return {"access_token": token_response.access_token, "token_type": "bearer"}
+# @router.post("/token")
+# def login(db: DBSession, form: OAuth2PasswordRequestForm = Depends()):
+#     payload = LoginRequest(email=form.username, password=form.password)
+#     servicio = AuthServices(db)
+#     token_response = servicio.login(payload)
+#     return {"access_token": token_response.access_token, "token_type": "bearer"}
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 def logout(token: Annotated[str, Depends(oauth2_scheme)], db: DBSession):

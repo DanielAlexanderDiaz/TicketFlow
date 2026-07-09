@@ -1,7 +1,5 @@
 from datetime import datetime
 from math import ceil
-import select
-from typing import Optional
 from fastapi import HTTPException, status
 from sqlalchemy import func
 from sqlmodel import Session

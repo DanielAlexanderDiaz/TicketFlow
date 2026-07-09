@@ -104,17 +104,17 @@ class UsuarioService:
             valor_anterior = getattr(usuario, campo, None)
             setattr(usuario, campo, nuevo_valor)
             
-        if str(valor_anterior) != str(nuevo_valor):
-            self.auditoria_repo.crear_audtoria(Auditoria(
-                entidad = "usuario",
-                id_entidad = id_usuario, 
-                id_usuario = id_usuario,
-                campo_cambiado=campo,
-                fecha_cambio=datetime.now(),
-                valor_anterior=str(valor_anterior),
-                valor_nuevo=str(nuevo_valor),
-                accion="actualizado"
-                ))
+            if str(valor_anterior) != str(nuevo_valor):
+                self.auditoria_repo.crear_audtoria(Auditoria(
+                    entidad = "usuario",
+                    id_entidad = id_usuario, 
+                    id_usuario = id_usuario,
+                    campo_cambiado=campo,
+                    fecha_cambio=datetime.now(),
+                    valor_anterior=str(valor_anterior),
+                    valor_nuevo=str(nuevo_valor),
+                    accion="actualizado"
+                    ))
 
         usuario_actualizado = self.usuario_repo.actualizar_usuario(usuario)
         
