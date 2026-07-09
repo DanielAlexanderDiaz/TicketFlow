@@ -34,7 +34,7 @@ class ComentarioRepositorio:
         self.db.exec(delete(Comentario).where(Comentario.id == id_comentario))
         self.db.commit()
 
-    def ultimo_comentario(self, id_ticket: int) -> bool:
+    def ultimo_comentario(self, id_ticket: int) -> Comentario | None:
         query = select(Comentario).where(Comentario.id_ticket == id_ticket).order_by(Comentario.id.desc()).limit(1)
         return self.db.exec(query).first()
     

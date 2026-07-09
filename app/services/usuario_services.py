@@ -50,6 +50,9 @@ class UsuarioService:
         if not usuario:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no encontrado')
         
+        if not imagen_url:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Imagen no encontrada')
+        
         img_data = save_uploaded_img(imagen_url)
         usuario.imagen_url = img_data["url"]
         

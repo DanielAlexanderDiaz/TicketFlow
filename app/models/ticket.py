@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from tkinter import E
 from typing import Optional
 from sqlmodel import Field, SQLModel
 
@@ -9,10 +10,10 @@ class EstadoTicket(str, Enum):
     EN_PROGRESO = "en_progreso"
     FINALIZADO = "finalizado"
     
-TRANSICIONES_PERMITIDAS = {
-    EstadoTicket.PENDIENTE: [EstadoTicket.EN_PROGRESO],
-    EstadoTicket.EN_PROGRESO: [EstadoTicket.FINALIZADO],
-    EstadoTicket.FINALIZADO: []
+TRANSICIONES_PERMITIDAS = dict[EstadoTicket, set[EstadoTicket]]= {
+    EstadoTicket.PENDIENTE: {EstadoTicket.EN_PROGRESO},
+    EstadoTicket.EN_PROGRESO: {EstadoTicket.FINALIZADO},
+    EstadoTicket.FINALIZADO: set()
 }
 
 class PrioridadTicket(str, Enum):

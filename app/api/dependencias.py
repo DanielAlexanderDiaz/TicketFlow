@@ -12,7 +12,7 @@ from app.repositories.usuario_repository import UsuarioRepositorio
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 
 def get_db() -> Session:
-    return Depends(get_session())
+    return Depends(get_session)
 
 DBSession = Annotated[Session, Depends(get_db)]
 
@@ -59,8 +59,7 @@ class VerificarPermisos:
         self.permisos_necesarios = permisos_necesarios
         
     def __call__(self, usuario_actual: UsuarioActual):
-        if usuario_actual.permiso:
-            permiso_valido = PERMISOS_POR_ROL.get(usuario_actual.rol, set()) | {Permiso(p) for p in usuario_actual.permiso}
+        permiso_valido = PERMISOS_POR_ROL.get(usuario_actual.rol, set()) | {Permiso(p) for p in usuario_actual.permiso}
         
         if not all(perm in permiso_valido for perm in self.permisos_necesarios):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No se tienen permisos suficientes")

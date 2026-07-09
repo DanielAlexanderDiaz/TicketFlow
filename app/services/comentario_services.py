@@ -61,7 +61,8 @@ class ComentarioService():
         if not es_propietario:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permiso para actualizar este comentario")
         
-        es_ultimo_comentario = comentario.id_ticket == id_ticket and comentario.id == self.comentario_repo.ultimo_comentario(id_ticket).id
+        ultimo = self.comentario_repo.ultimo_comentario(id_ticket)
+        es_ultimo_comentario = comentario.id_ticket == id_ticket and ultimo is not None and comentario.id == ultimo.id
         if not es_ultimo_comentario:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No se puede modificar un comentario que no sea el último")
         
@@ -92,7 +93,8 @@ class ComentarioService():
         if not es_propietario:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permiso para eliminar este comentario")
         
-        es_ultimo_comentario = comentario.id_ticket == id_ticket and comentario.id == self.comentario_repo.ultimo_comentario(id_ticket).id
+        ultimo = self.comentario_repo.ultimo_comentario(id_ticket)
+        es_ultimo_comentario = comentario.id_ticket == id_ticket and ultimo is not None and comentario.id == ultimo.id
         if not es_ultimo_comentario:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No se puede eliminar un comentario que no sea el último")
         
