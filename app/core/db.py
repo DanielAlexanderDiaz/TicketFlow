@@ -21,7 +21,8 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close() 
     
 def init_db() -> None:
-    SQLModel.metadata.create_all(motor)
+    if configuracion.AMBIENTE == "DESARROLLO":
+        SQLModel.metadata.create_all(motor)
 
 def get_session() -> Iterator[Session]:
     with Session(motor) as session:
