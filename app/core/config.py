@@ -7,7 +7,7 @@ class Configuracion(BaseSettings):
     JWT_ALGORITMO: str
     JWT_TIEMPO_EXPIRACION: int
     NOMBRE_PROYECTO: str = "TicketFlow"
-    AMBIENTE: str = "DESARROLLO",
+    AMBIENTE: str = "DESARROLLO"
 
     model_config = SettingsConfigDict(
         env_file=".env",
