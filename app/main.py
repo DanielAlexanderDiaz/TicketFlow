@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.core.db import init_db
-from app.core.config import Configuracion
+from app.core.config import configuracion
 from app.api.routers.auth_router import router as auth_router
 from app.api.routers.usuario_router import router as usuario_router
 from app.api.routers.ticket_router import router as ticket_router
@@ -20,7 +20,7 @@ load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if Configuracion.AMBIENTE == "DESARROLLO":
+    if configuracion.AMBIENTE == "DESARROLLO":
         init_db()
     yield
     
